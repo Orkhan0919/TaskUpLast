@@ -1,0 +1,47 @@
+@{
+    ViewData["Title"] = "Access Denied";
+    Layout = "_LayoutMin";
+}
+
+<div class="min-h-screen flex flex-col items-center justify-center bg-gray-950 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-md w-full text-center">
+        <!-- İkon -->
+        <div class="flex justify-center mb-6">
+            <div class="w-24 h-24 rounded-full bg-red-900/30 flex items-center justify-center">
+                <i class="fas fa-lock text-5xl text-red-400"></i>
+            </div>
+        </div>
+
+        <!-- Başlık -->
+        <h1 class="text-3xl font-bold text-white mb-4">Access Denied</h1>
+        
+        <!-- Mesaj -->
+        <p class="text-gray-400 mb-4">
+            You don't have permission to access this page.
+        </p>
+        <p class="text-gray-500 text-sm mb-8">
+            This area is restricted to administrators only.
+        </p>
+
+        <!-- Butonlar -->
+        <div class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4 justify-center">
+            <a href="/" 
+               class="px-6 py-3 bg-gray-800 hover:bg-gray-700 rounded-xl text-white font-medium transition-colors">
+                <i class="fas fa-home mr-2"></i>
+                Go to Home
+            </a>
+            <a href="javascript:history.back()" 
+               class="px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-xl text-white font-medium transition-colors">
+                <i class="fas fa-arrow-left mr-2"></i>
+                Go Back
+            </a>
+        </div>
+
+        <div class="mt-8 p-4 bg-gray-900 rounded-xl border border-gray-800">
+            <p class="text-sm text-gray-500">
+                <i class="fas fa-info-circle mr-2 text-blue-400"></i>
+                If you believe this is a mistake, please contact your system administrator.
+            </p>
+        </div>
+    </div>
+</div>

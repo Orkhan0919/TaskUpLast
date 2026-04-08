@@ -1,0 +1,414 @@
+@model List<TaskUp.Models.Board>
+@using TaskUp.Utilities.Enums
+
+@{
+    ViewData["Title"] = "My Dashboards";
+    Layout = "_Layout2";
+}
+
+<div class="min-h-screen bg-gray-950 p-8">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-white">My Dashboards</h1>
+            <p class="text-gray-400 mt-2">Welcome back! You have <span id="totalBoardsCount">@Model.Count</span> active dashboards</p>
+        </div>
+
+        <div class="flex items-center space-x-4 mt-4 md:mt-0">
+            <a asp-action="Access"
+               class="px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-xl text-white font-medium flex items-center transition-all transform hover:scale-[1.02]">
+                <i class="fas fa-plus mr-2"></i>
+                New Dashboard
+            </a>
+            <button onclick="showQuickJoin()"
+                    class="px-6 py-3 bg-gray-800 hover:bg-gray-700 rounded-xl text-white font-medium flex items-center transition-all">
+                <i class="fas fa-sign-in-alt mr-2"></i>
+                Join
+            </button>
+            <form asp-action="Logout" asp-controller="Account" method="post" class="inline">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-xl text-sm font-medium text-white flex items-center">
+                    <i class="fas fa-sign-out-alt mr-2"></i>
+                    Logout
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div class="bg-gray-900 rounded-2xl p-6 border border-gray-800">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-400 text-sm">Total Boards</p>
+                    <p class="text-2xl font-bold text-white mt-1" id="totalBoardsStat">@Model.Count</p>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-blue-900/30 flex items-center justify-center">
+                    <i class="fas fa-columns text-blue-400 text-xl"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-gray-900 rounded-2xl p-6 border border-gray-800">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-400 text-sm">Personal</p>
+                    <p class="text-2xl font-bold text-white mt-1" id="personalBoardsStat">
+                        @Model.Count(b => b.BoardType == BoardType.Personal)
+                    </p>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-green-900/30 flex items-center justify-center">
+                    <i class="fas fa-user text-green-400 text-xl"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-gray-900 rounded-2xl p-6 border border-gray-800">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-400 text-sm">Team</p>
+                    <p class="text-2xl font-bold text-white mt-1" id="teamBoardsStat">
+                        @Model.Count(b => b.BoardType == BoardType.Team)
+                    </p>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-purple-900/30 flex items-center justify-center">
+                    <i class="fas fa-users text-purple-400 text-xl"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-gray-900 rounded-2xl p-6 border border-gray-800">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-400 text-sm">Total Tasks</p>
+                    <p class="text-2xl font-bold text-white mt-1" id="totalTasksStat">0</p>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-yellow-900/30 flex items-center justify-center">
+                    <i class="fas fa-check-circle text-yellow-400 text-xl"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pano Listesi -->
+    <div class="mb-8">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-xl font-semibold text-white">Your Dashboards</h2>
+            <div class="flex space-x-2 bg-gray-900 p-1 rounded-xl">
+                <button id="showAllBtn" class="px-4 py-2 text-sm text-white bg-blue-600 rounded-lg transition-colors">
+                    All
+                </button>
+                <button id="showPersonalBtn" class="px-4 py-2 text-sm text-gray-400 hover:text-white transition-colors">
+                    Personal
+                </button>
+                <button id="showTeamBtn" class="px-4 py-2 text-sm text-gray-400 hover:text-white transition-colors">
+                    Team
+                </button>
+            </div>
+        </div>
+        <!-- Board Settings Modal -->
+        <div id="boardSettingsModal" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 hidden">
+            <div class="bg-gray-900 rounded-2xl p-8 w-full max-w-md mx-4 border border-gray-800 shadow-2xl">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-xl font-bold text-white flex items-center">
+                        <i class="fas fa-cog text-blue-400 mr-3"></i>
+                        Board Settings
+                    </h3>
+                    <button id="closeBoardSettingsModal" class="text-gray-400 hover:text-white">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+
+                <div id="boardSettingsContent">
+                    <!-- İçerik JavaScript ile doldurulacak -->
+                </div>
+            </div>
+        </div>
+        @if (Model.Any())
+        {
+            <div id="boardsContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                @foreach (var board in Model)
+                {
+                    <div class="board-card group bg-gray-900 rounded-2xl p-6 border border-gray-800 hover:border-gray-700 transition-all hover:shadow-xl"
+                         data-board-type="@board.BoardType"
+                         data-board-id="@board.Id">
+                        
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="flex items-center">
+                                @if (board.BoardType == BoardType.Personal)
+                                {
+                                    <div class="w-10 h-10 rounded-xl bg-blue-900/30 flex items-center justify-center mr-3">
+                                        <i class="fas fa-user text-blue-400"></i>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="w-10 h-10 rounded-xl bg-purple-900/30 flex items-center justify-center mr-3">
+                                        <i class="fas fa-users text-purple-400"></i>
+                                    </div>
+                                }
+                                <div>
+                                    <h3 class="font-semibold text-white group-hover:text-blue-400 transition-colors">
+                                        @board.Name
+                                    </h3>
+                                    <p class="text-xs text-gray-500 mt-1">
+                                        Created @board.CreatedAt.ToString("MMM dd, yyyy")
+                                    </p>
+                                </div>
+                            </div>
+
+                            <span class="px-3 py-1 @(board.BoardType == BoardType.Personal ? "bg-blue-900/30 text-blue-400" : "bg-purple-900/30 text-purple-400") rounded-full text-xs font-medium">
+                                @(board.BoardType == BoardType.Personal ? "Personal" : "Team")
+                            </span>
+                        </div>
+
+                        <p class="text-gray-400 text-sm mb-4 line-clamp-2">
+                            @board.Description
+                        </p>
+
+                        <div class="flex items-center justify-between text-sm mb-4">
+                            <div class="flex items-center text-gray-500">
+                                <i class="fas fa-tasks mr-2"></i>
+                                <span class="task-count">@(board.Columns?.Sum(c => c.Tasks?.Count ?? 0) ?? 0) tasks</span>
+                            </div>
+                            <div class="flex items-center text-gray-500">
+                                <i class="fas fa-users mr-2"></i>
+                                <span>@(board.Members?.Count ?? 0) members</span>
+                            </div>
+                        </div>
+
+                        <div class="flex space-x-3">
+                            <a asp-controller="Board" asp-action="Index" asp-route-id="@board.Id"
+                               class="flex-1 py-2.5 bg-gray-800 hover:bg-gray-700 rounded-xl text-sm font-medium text-white text-center transition-colors">
+                                Open Board
+                            </a>
+                            @if (board.OwnerId == User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value)
+                            {
+                                <button onclick="showBoardSettings(@board.Id)"
+                                        class="w-10 h-10 bg-gray-800 hover:bg-gray-700 rounded-xl text-gray-400 hover:text-white transition-colors">
+                                    <i class="fas fa-cog"></i>
+                                </button>
+                            }
+                        </div>
+
+                        @if (board.BoardType == BoardType.Team)
+                        {
+                            <div class="mt-4 pt-4 border-t border-gray-800">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-xs text-gray-500">Share code:</span>
+                                    <div class="flex items-center">
+                                        <code class="text-xs bg-gray-800 px-3 py-1.5 rounded-l-lg text-gray-300 font-mono">
+                                            @board.JoinCode
+                                        </code>
+                                        <button onclick="copyCode('@board.JoinCode')"
+                                                class="bg-gray-800 hover:bg-gray-700 px-3 py-1.5 rounded-r-lg text-gray-400 hover:text-white transition-colors">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="bg-gray-900 rounded-2xl p-12 text-center border border-gray-800">
+                <div class="w-20 h-20 rounded-full bg-gray-800 flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-columns text-3xl text-gray-600"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-white mb-2">No dashboards yet</h3>
+                <p class="text-gray-400 mb-6">Create your first dashboard to start managing your projects</p>
+                <a asp-action="Access"
+                   class="inline-flex items-center px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-xl text-white font-medium transition-all transform hover:scale-[1.02]">
+                    <i class="fas fa-plus mr-2"></i>
+                    Create Dashboard
+                </a>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const showAllBtn = document.getElementById('showAllBtn');
+            const showPersonalBtn = document.getElementById('showPersonalBtn');
+            const showTeamBtn = document.getElementById('showTeamBtn');
+            const boardCards = document.querySelectorAll('.board-card');
+            const totalTasksStat = document.getElementById('totalTasksStat');
+            const personalBoardsStat = document.getElementById('personalBoardsStat');
+            const teamBoardsStat = document.getElementById('teamBoardsStat');
+            const totalBoardsStat = document.getElementById('totalBoardsStat');
+            const totalBoardsCount = document.getElementById('totalBoardsCount');
+// Board Settings Modal
+            const boardSettingsModal = document.getElementById('boardSettingsModal');
+            const closeBoardSettingsModal = document.getElementById('closeBoardSettingsModal');
+            const boardSettingsContent = document.getElementById('boardSettingsContent');
+
+            window.showBoardSettings = function(boardId) {
+                console.log('Show settings for board:', boardId);
+
+                // Board bilgilerini getir
+                fetch(`/Board/GetBoardInfo?boardId=${boardId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            boardSettingsContent.innerHTML = `
+                    <div class="space-y-6">
+                        <div class="bg-gray-800/50 rounded-xl p-4">
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 rounded-full bg-blue-900/30 flex items-center justify-center mr-3">
+                                    <i class="fas fa-tasks text-blue-400"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-white font-medium">${data.name}</h4>
+                                    <p class="text-xs text-gray-400">Join Code: <span class="font-mono text-blue-400">${data.joinCode}</span></p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="border-t border-gray-800 pt-4">
+                            <h4 class="text-white font-medium mb-3">Danger Zone</h4>
+                            <button onclick="deleteBoard(${boardId})"
+                                    class="w-full py-3 bg-red-600 hover:bg-red-700 rounded-xl font-medium text-white transition-colors flex items-center justify-center">
+                                <i class="fas fa-trash-alt mr-2"></i>
+                                Delete Board Permanently
+                            </button>
+                        </div>
+                    </div>
+                `;
+                            boardSettingsModal.classList.remove('hidden');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error loading board info:', error);
+                    });
+            };
+
+// Modalı kapat
+            if (closeBoardSettingsModal) {
+                closeBoardSettingsModal.addEventListener('click', function() {
+                    boardSettingsModal.classList.add('hidden');
+                });
+            }
+
+// Modal dışına tıklayınca kapat
+            window.addEventListener('click', function(e) {
+                if (boardSettingsModal && e.target === boardSettingsModal) {
+                    boardSettingsModal.classList.add('hidden');
+                }
+});
+
+// Board silme fonksiyonu
+            window.deleteBoard = function(boardId) {
+                if (confirm('⚠️ WARNING: This will permanently delete the board and all its tasks. This action cannot be undone!')) {
+                    const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+
+                    fetch('/Board/DeleteBoard', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'RequestVerificationToken': token
+                        },
+                        body: JSON.stringify({
+                            boardId: boardId
+                        })
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                boardSettingsModal.classList.add('hidden');
+                                location.reload(); // Sayfayı yenile
+                            } else {
+                                alert('Failed to delete board: ' + data.message);
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            alert('Network error');
+                        });
+                }
+};
+            function calculateTotals() {
+                let totalTasks = 0;
+                let personalCount = 0;
+                let teamCount = 0;
+                
+                boardCards.forEach(card => {
+                    const taskText = card.querySelector('.task-count')?.textContent || '0 tasks';
+                    const taskCount = parseInt(taskText) || 0;
+                    totalTasks += taskCount;
+                    
+                    const boardType = card.dataset.boardType;
+                    if (boardType === 'Personal') {
+                        personalCount++;
+                    } else if (boardType === 'Team') {
+                        teamCount++;
+                    }
+                });
+                
+                totalTasksStat.textContent = totalTasks;
+                personalBoardsStat.textContent = personalCount;
+                teamBoardsStat.textContent = teamCount;
+                totalBoardsStat.textContent = boardCards.length;
+                if (totalBoardsCount) {
+                    totalBoardsCount.textContent = boardCards.length;
+                }
+            }
+
+            function filterBoards(type) {
+                boardCards.forEach(card => {
+                    if (type === 'all') {
+                        card.style.display = 'block';
+                    } else if (type === 'personal') {
+                        card.style.display = card.dataset.boardType === 'Personal' ? 'block' : 'none';
+                    } else if (type === 'team') {
+                        card.style.display = card.dataset.boardType === 'Team' ? 'block' : 'none';
+                    }
+                });
+                
+                [showAllBtn, showPersonalBtn, showTeamBtn].forEach(btn => {
+                    btn.classList.remove('bg-blue-600', 'text-white');
+                    btn.classList.add('text-gray-400', 'hover:text-white');
+                });
+                
+                if (type === 'all') {
+                    showAllBtn.classList.remove('text-gray-400', 'hover:text-white');
+                    showAllBtn.classList.add('bg-blue-600', 'text-white');
+                } else if (type === 'personal') {
+                    showPersonalBtn.classList.remove('text-gray-400', 'hover:text-white');
+                    showPersonalBtn.classList.add('bg-blue-600', 'text-white');
+                } else if (type === 'team') {
+                    showTeamBtn.classList.remove('text-gray-400', 'hover:text-white');
+                    showTeamBtn.classList.add('bg-blue-600', 'text-white');
+                }
+            }
+
+            if (showAllBtn) {
+                showAllBtn.addEventListener('click', () => filterBoards('all'));
+            }
+            if (showPersonalBtn) {
+                showPersonalBtn.addEventListener('click', () => filterBoards('personal'));
+            }
+            if (showTeamBtn) {
+                showTeamBtn.addEventListener('click', () => filterBoards('team'));
+            }
+
+            calculateTotals();
+        });
+
+        function showQuickJoin() {
+            window.location.href = '/Dashboard/Access';
+        }
+
+        function copyCode(code) {
+            navigator.clipboard.writeText(code);
+            alert('Code copied to clipboard!');
+        }
+
+        function showBoardSettings(boardId) {
+            console.log('Show settings for board:', boardId);
+        }
+    </script>
+}

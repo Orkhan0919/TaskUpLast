@@ -1,0 +1,175 @@
+@* Views/Shared/_BoardLayout.cshtml *@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+    <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - TaskUp</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- SortableJS for Drag & Drop -->
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.14.0/Sortable.min.js"></script>
+    
+    <style>
+        * { font-family: 'Inter', sans-serif; }
+        
+        .line-clamp-2 {
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 2;
+        }
+        
+        .drag-drop-container {
+            scrollbar-width: thin;
+            scrollbar-color: #4b5563 #1f2937;
+        }
+        
+        .drag-drop-container::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .drag-drop-container::-webkit-scrollbar-track {
+            background: #1f2937;
+            border-radius: 3px;
+        }
+        
+        .drag-drop-container::-webkit-scrollbar-thumb {
+            background: #4b5563;
+            border-radius: 3px;
+        }
+        
+        .drag-drop-container::-webkit-scrollbar-thumb:hover {
+            background: #6b7280;
+        }
+        
+        .task-card {
+            transition: all 0.2s ease;
+        }
+        
+        .task-card.dragging {
+            opacity: 0.5;
+            transform: rotate(3deg);
+        }
+        
+        .task-card.drag-over {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
+        }
+        
+        @@keyframes boardFadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @@keyframes boardSlideUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .board-fade-in { animation: boardFadeIn 0.3s ease-out; }
+        .board-slide-up { animation: boardSlideUp 0.4s ease-out; }
+    </style>
+    
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body class="h-screen flex bg-gray-950 text-gray-100 overflow-hidden">
+    <!-- Board Sidebar - SADECE BURADA! -->
+    <div class="w-16 bg-gray-900 flex flex-col items-center py-6 space-y-8 flex-shrink-0">
+        <a asp-controller="Dashboard" asp-action="Index" 
+           class="w-10 h-10 rounded-lg bg-gradient-to-r from-blue-500 to-blue-700 flex items-center justify-center hover:opacity-90 transition-opacity"
+           title="Back to Dashboards">
+            <i class="fas fa-tasks text-white text-lg"></i>
+        </a>
+        
+        <nav class="flex-1 flex flex-col items-center space-y-6">
+            <a asp-controller="Board" asp-action="Index" asp-route-id="@ViewBag.BoardId"
+               class="w-12 h-12 rounded-xl flex items-center justify-center @(ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "bg-blue-900/30 text-blue-400" : "text-gray-400 hover:bg-gray-800 hover:text-gray-300") transition-colors"
+               title="Board">
+                <i class="fas fa-columns text-xl"></i>
+            </a>
+            
+            <a asp-controller="Board" asp-action="Members" asp-route-id="@ViewBag.BoardId"
+               class="w-12 h-12 rounded-xl flex items-center justify-center @(ViewContext.RouteData.Values["action"]?.ToString() == "Members" ? "bg-blue-900/30 text-blue-400" : "text-gray-400 hover:bg-gray-800 hover:text-gray-300") transition-colors"
+               title="Members">
+                <i class="fas fa-users text-xl"></i>
+            </a>
+            
+            <a asp-controller="Board" asp-action="Settings" asp-route-id="@ViewBag.BoardId"
+               class="w-12 h-12 rounded-xl flex items-center justify-center @(ViewContext.RouteData.Values["action"]?.ToString() == "Settings" ? "bg-blue-900/30 text-blue-400" : "text-gray-400 hover:bg-gray-800 hover:text-gray-300") transition-colors"
+               title="Settings">
+                <i class="fas fa-cog text-xl"></i>
+            </a>
+        </nav>
+        
+        <div class="mt-auto">
+            <div class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center border-2 border-gray-700">
+                <i class="fas fa-user text-gray-400"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col overflow-hidden">
+        @RenderBody()
+    </div>
+
+    <!-- Global Scripts -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // User dropdown
+            const userMenuBtn = document.getElementById('boardUserMenuBtn');
+            const userDropdown = document.getElementById('boardUserDropdown');
+            
+            if (userMenuBtn && userDropdown) {
+                userMenuBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    userDropdown.classList.toggle('hidden');
+                });
+                
+                document.addEventListener('click', function(e) {
+                    if (!userDropdown.contains(e.target) && !userMenuBtn.contains(e.target)) {
+                        userDropdown.classList.add('hidden');
+                    }
+                });
+            }
+            
+            window.boardToast = function(message, type = 'info') {
+                const toast = document.createElement('div');
+                const bgColor = type === 'success' ? 'bg-green-900' : 
+                               type === 'error' ? 'bg-red-900' : 
+                               type === 'warning' ? 'bg-yellow-900' : 'bg-blue-900';
+                
+                toast.className = `fixed top-4 right-4 ${bgColor} border border-gray-700 text-white px-6 py-3 rounded-xl shadow-lg z-[100] transform transition-transform duration-300 translate-x-full`;
+                toast.innerHTML = `
+                    <div class="flex items-center">
+                        <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : type === 'warning' ? 'exclamation-triangle' : 'info-circle'} mr-3"></i>
+                        <span>${message}</span>
+                    </div>
+                `;
+                document.body.appendChild(toast);
+                setTimeout(() => toast.classList.remove('translate-x-full'), 10);
+                setTimeout(() => {
+                    toast.classList.add('translate-x-full');
+                    setTimeout(() => toast.remove(), 300);
+                }, 5000);
+                toast.addEventListener('click', () => toast.remove());
+            };
+        });
+    </script>
+    <link rel="stylesheet" href="~/css/theme.css" />
+    <script src="~/js/theme.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

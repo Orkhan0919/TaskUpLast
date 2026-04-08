@@ -1,0 +1,871 @@
+@model TaskUp.ViewModels.DashboardAccessVm
+
+@{
+ViewData["Title"] = "Dashboard Access";
+Layout = "_LayoutMin";
+}
+
+<!-- Alert Messages -->
+@if (TempData["SuccessMessage"] != null)
+{
+<div class="mb-4 p-4 bg-green-900/50 border border-green-700 rounded-xl text-green-300 text-sm flex items-center animate-fade-in">
+    <i class="fas fa-check-circle mr-3 text-green-400"></i>
+    @TempData["SuccessMessage"]
+</div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+<div class="mb-4 p-4 bg-red-900/50 border border-red-700 rounded-xl text-red-300 text-sm flex items-center animate-fade-in">
+    <i class="fas fa-exclamation-circle mr-3 text-red-400"></i>
+    @TempData["ErrorMessage"]
+</div>
+}
+
+<div class="min-h-screen flex flex-col items-center justify-center bg-gray-950 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-4xl w-full">
+        <!-- Logo ve Başlık -->
+        <div class="text-center mb-10">
+            <div class="flex justify-center">
+                <div class="w-16 h-16 rounded-2xl bg-gradient-to-r from-blue-500 to-blue-700 flex items-center justify-center shadow-lg mb-4">
+                    <i class="fas fa-tasks text-white text-2xl"></i>
+                </div>
+            </div>
+            <h1 class="text-3xl font-bold text-white">TaskUp</h1>
+            <p class="text-gray-400 mt-2">Project Management Dashboard</p>
+        </div>
+
+        <div class="bg-gray-900 rounded-3xl p-8 shadow-2xl border border-gray-800">
+            <!-- CREATE DASHBOARD - 2 SEÇENEKLİ -->
+            <div class="mb-8">
+                <h2 class="text-xl font-semibold text-white mb-6 flex items-center">
+                    <i class="fas fa-plus-circle text-blue-400 mr-3"></i>
+                    Create New Dashboard
+                </h2>
+
+                <div class="grid md:grid-cols-2 gap-6">
+                    <!-- Personal Board -->
+                    <div onclick="selectBoardType('personal')"
+                         class="group relative bg-gray-800/50 hover:bg-gray-800 rounded-2xl p-6 border-2 border-gray-700 hover:border-blue-500 transition-all duration-300 cursor-pointer">
+                        <div class="absolute -top-3 -right-3 bg-blue-600 text-white px-3 py-1 rounded-full text-xs font-medium shadow-lg">
+                            PERSONAL
+                        </div>
+                        <div class="flex flex-col items-center text-center">
+                            <div class="w-16 h-16 rounded-full bg-blue-900/30 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                                <i class="fas fa-user text-3xl text-blue-400"></i>
+                            </div>
+                            <h3 class="text-lg font-bold text-white mb-2">Personal Board</h3>
+                            <p class="text-gray-400 text-sm mb-4">
+                                For individual tasks, personal projects, or solo work.
+                                Only you can see and manage this board.
+                            </p>
+                            <div class="flex flex-wrap gap-2 justify-center text-xs text-gray-500">
+                                <span class="px-2 py-1 bg-gray-700/50 rounded-full">🔒 Private</span>
+                                <span class="px-2 py-1 bg-gray-700/50 rounded-full">👤 Solo</span>
+                                <span class="px-2 py-1 bg-gray-700/50 rounded-full">📋 Personal tasks</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Team Board -->
+                    <div onclick="selectBoardType('team')"
+                         class="group relative bg-gray-800/50 hover:bg-gray-800 rounded-2xl p-6 border-2 border-gray-700 hover:border-purple-500 transition-all duration-300 cursor-pointer">
+                        <div class="absolute -top-3 -right-3 bg-purple-600 text-white px-3 py-1 rounded-full text-xs font-medium shadow-lg">
+                            TEAM
+                        </div>
+                        <div class="flex flex-col items-center text-center">
+                            <div class="w-16 h-16 rounded-full bg-purple-900/30 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                                <i class="fas fa-users text-3xl text-purple-400"></i>
+                            </div>
+                            <h3 class="text-lg font-bold text-white mb-2">Team Board</h3>
+                            <p class="text-gray-400 text-sm mb-4">
+                                Collaborate with your team, invite members, assign tasks,
+                                and manage projects together in real-time.
+                            </p>
+                            <div class="flex flex-wrap gap-2 justify-center text-xs text-gray-500">
+                                <span class="px-2 py-1 bg-gray-700/50 rounded-full">👥 Team</span>
+                                <span class="px-2 py-1 bg-gray-700/50 rounded-full">🔗 Invite links</span>
+                                <span class="px-2 py-1 bg-gray-700/50 rounded-full">📊 Collaboration</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- OR Divider -->
+            <div class="relative my-8">
+                <div class="absolute inset-0 flex items-center">
+                    <div class="w-full border-t border-gray-800"></div>
+                </div>
+                <div class="relative flex justify-center text-sm">
+                    <span class="px-4 bg-gray-900 text-gray-400">OR</span>
+                </div>
+            </div>
+
+            <!-- JOIN BOARD -->
+            <div>
+                <h2 class="text-xl font-semibold text-white mb-6 flex items-center">
+                    <i class="fas fa-key text-green-400 mr-3"></i>
+                    Join with Access Code
+                </h2>
+
+                <button id="joinBtn"
+                        class="w-full py-4 bg-gray-800 hover:bg-gray-700 rounded-xl text-lg font-medium text-gray-300 hover:text-white border-2 border-gray-700 hover:border-green-500 transition-all flex items-center justify-center group">
+                    <i class="fas fa-sign-in-alt mr-3 text-green-400 group-hover:scale-110 transition-transform"></i>
+                    Join Existing Dashboard
+                </button>
+
+                <div id="joinForm" class="hidden mt-6 p-6 bg-gray-800/50 rounded-xl">
+                    <h3 class="text-lg font-semibold text-white mb-4">Enter 6-Digit Access Code</h3>
+
+                    <form id="joinDashboardForm" asp-action="JoinBoard" asp-controller="Dashboard" method="post">
+                        @Html.AntiForgeryToken()
+
+                        <div class="flex justify-center space-x-3 mb-6">
+                            @for (int i = 0; i < 6; i++)
+                            {
+                            <input type="text"
+                                   maxlength="1"
+                                   class="w-12 h-14 text-center text-xl font-bold bg-gray-900 border-2 border-gray-700 rounded-xl text-white focus:border-green-500 focus:ring-2 focus:ring-green-500/20 transition-all code-digit"
+                                   data-index="@i"
+                                   name="codeDigits">
+                            }
+                        </div>
+
+                        <input type="hidden" id="accessCode" name="AccessCode" value="@Model?.AccessCode" />
+
+                        <div class="text-center mb-4">
+                            <p id="codeDisplay" class="text-gray-400 text-sm font-mono">Entered Code: <span id="enteredCode">@(Model?.AccessCode ?? "______")</span></p>
+                        </div>
+
+                        <div id="joinPasswordSection" class="@(Model?.RequiresPassword == true ? "" : "hidden") mt-4">
+                            <label for="Password" class="block text-gray-300 text-sm font-medium mb-2">Dashboard Password</label>
+                            <div class="relative">
+                                <input type="password"
+                                       id="Password"
+                                       name="Password"
+                                       value="@Model?.Password"
+                                       class="w-full bg-gray-800 border border-gray-700 rounded-xl py-3 px-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                       placeholder="Enter password">
+                                <button type="button" id="toggleJoinPassword" class="absolute right-4 top-3 text-gray-400 hover:text-white">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="flex space-x-4 mt-6">
+                            <button type="button" id="backBtn" class="flex-1 py-3 bg-gray-700 hover:bg-gray-600 rounded-xl font-medium text-white transition-colors">
+                                Back
+                            </button>
+                            <button type="submit" id="submitJoinBtn" class="flex-1 py-3 bg-green-600 hover:bg-green-700 rounded-xl font-medium text-white transition-colors">
+                                Join Board
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        @if (Model?.ShowDemoInfo == true)
+        {
+        <div class="mt-8 text-center text-gray-500 text-sm">
+            <p>Access codes are 6-character alphanumeric (e.g., A1B2C3)</p>
+        </div>
+        }
+    </div>
+</div>
+
+<!-- Board Tipi Modalı -->
+<div id="boardTypeModal" class="fixed inset-0 bg-black/80 flex items-center justify-center z-50 hidden">
+    <div class="bg-gray-900 rounded-3xl p-8 w-full max-w-md mx-4 border border-gray-800 shadow-2xl">
+        <div class="flex items-center justify-between mb-6">
+            <h3 class="text-xl font-bold text-white" id="modalTitle">Create Board</h3>
+            <button onclick="closeModal()" class="text-gray-400 hover:text-white">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+
+        <!-- Personal Board Form -->
+        <div id="personalBoardForm" class="hidden">
+            <div class="flex items-center mb-6 p-4 bg-blue-900/20 rounded-xl border border-blue-800">
+                <i class="fas fa-user text-2xl text-blue-400 mr-4"></i>
+                <div>
+                    <h4 class="font-semibold text-white">Personal Board</h4>
+                    <p class="text-xs text-gray-400">For individual use - private and solo</p>
+                </div>
+            </div>
+
+            <div class="mb-6">
+                <label class="block text-gray-300 text-sm font-medium mb-2">Board Name</label>
+                <input type="text" id="personalBoardName"
+                       class="w-full bg-gray-800 border border-gray-700 rounded-xl py-3 px-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                       placeholder="e.g., My Tasks, Personal Goals">
+            </div>
+
+            <!-- Şifre Koruması (Personal Board için de eklenebilir) -->
+            <div class="mb-8">
+                <div class="flex items-center mb-4">
+                    <input type="checkbox"
+                           id="enablePersonalPassword"
+                           class="w-5 h-5 rounded bg-gray-800 border-gray-700 text-blue-600 focus:ring-blue-500">
+                    <label for="enablePersonalPassword" class="ml-3 text-gray-300">
+                        <i class="fas fa-lock mr-2 text-yellow-500"></i>
+                        Enable password protection
+                    </label>
+                </div>
+
+                <div id="personalPasswordSection" class="hidden p-4 bg-gray-800/50 rounded-xl border border-gray-700">
+                    <p class="text-sm text-gray-400 mb-3">
+                        <i class="fas fa-info-circle mr-1 text-blue-400"></i>
+                        Password must be at least 4 characters long
+                    </p>
+                    <div>
+                        <label for="personalBoardPassword" class="block text-gray-300 mb-2">Board Password *</label>
+                        <div class="relative">
+                            <input type="password"
+                                   id="personalBoardPassword"
+                                   class="w-full bg-gray-800 border border-gray-700 rounded-xl py-3 px-4 text-white pr-12 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                                   placeholder="Enter at least 4 characters"
+                                   minlength="4"
+                                   disabled>
+                            <button type="button" class="absolute right-3 top-3 text-gray-400 hover:text-white toggle-password-btn">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        <p id="personalPasswordError" class="text-red-400 text-xs mt-1 hidden">Password must be at least 4 characters</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex space-x-4">
+                <button onclick="closeModal()" class="flex-1 py-3 bg-gray-800 hover:bg-gray-700 rounded-xl font-medium transition-colors">
+                    Cancel
+                </button>
+                <button onclick="createBoard('personal')" class="flex-1 py-3 bg-blue-600 hover:bg-blue-700 rounded-xl font-medium text-white transition-colors">
+                    Create Board
+                </button>
+            </div>
+        </div>
+
+        <!-- Team Board Form -->
+        <div id="teamBoardForm" class="hidden">
+            <div class="flex items-center mb-6 p-4 bg-purple-900/20 rounded-xl border border-purple-800">
+                <i class="fas fa-users text-2xl text-purple-400 mr-4"></i>
+                <div>
+                    <h4 class="font-semibold text-white">Team Board</h4>
+                    <p class="text-xs text-gray-400">Collaborate with your team members</p>
+                </div>
+            </div>
+
+            <div class="mb-6">
+                <label class="block text-gray-300 text-sm font-medium mb-2">Board Name</label>
+                <input type="text" id="teamBoardName"
+                       class="w-full bg-gray-800 border border-gray-700 rounded-xl py-3 px-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                       placeholder="e.g., Project Alpha, Marketing Campaign">
+            </div>
+
+            <div class="mb-6">
+                <label class="block text-gray-300 text-sm font-medium mb-2">Description (Optional)</label>
+                <textarea id="teamBoardDescription" rows="3"
+                          class="w-full bg-gray-800 border border-gray-700 rounded-xl py-3 px-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                          placeholder="What's this board about?"></textarea>
+            </div>
+
+            <!-- Şifre Koruması -->
+            <div class="mb-8">
+                <div class="flex items-center mb-4">
+                    <input type="checkbox"
+                           id="enableTeamPassword"
+                           class="w-5 h-5 rounded bg-gray-800 border-gray-700 text-blue-600 focus:ring-blue-500">
+                    <label for="enableTeamPassword" class="ml-3 text-gray-300">
+                        <i class="fas fa-lock mr-2 text-yellow-500"></i>
+                        Enable password protection
+                    </label>
+                </div>
+
+                <div id="teamPasswordSection" class="hidden p-4 bg-gray-800/50 rounded-xl border border-gray-700">
+                    <p class="text-sm text-gray-400 mb-3">
+                        <i class="fas fa-info-circle mr-1 text-blue-400"></i>
+                        Password must be at least 4 characters long
+                    </p>
+                    <div>
+                        <label for="teamBoardPassword" class="block text-gray-300 mb-2">Board Password *</label>
+                        <div class="relative">
+                            <input type="password"
+                                   id="teamBoardPassword"
+                                   class="w-full bg-gray-800 border border-gray-700 rounded-xl py-3 px-4 text-white pr-12 focus:border-purple-500 focus:ring-1 focus:ring-purple-500"
+                                   placeholder="Enter at least 4 characters"
+                                   minlength="4"
+                                   disabled>
+                            <button type="button" class="absolute right-3 top-3 text-gray-400 hover:text-white toggle-password-btn">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        <p id="teamPasswordError" class="text-red-400 text-xs mt-1 hidden">Password must be at least 4 characters</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex space-x-4">
+                <button onclick="closeModal()" class="flex-1 py-3 bg-gray-800 hover:bg-gray-700 rounded-xl font-medium transition-colors">
+                    Cancel
+                </button>
+                <button onclick="createBoard('team')" class="flex-1 py-3 bg-purple-600 hover:bg-purple-700 rounded-xl font-medium text-white transition-colors">
+                    Create Board
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+<style>
+    .fade-in {
+        animation: fadeIn 0.3s ease-out;
+    }
+    .slide-up {
+        animation: slideUp 0.4s ease-out;
+    }
+    @@keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    @@keyframes slideUp {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .input-focus:focus {
+        border-color: #8ab4f8;
+        box-shadow: 0 0 0 3px rgba(138, 180, 248, 0.1);
+    }
+    .btn-primary {
+        background-color: #1a73e8;
+        transition: all 0.2s ease;
+    }
+    .btn-primary:hover {
+        background-color: #1666d1;
+    }
+    .btn-secondary {
+        background-color: #2d3748;
+        transition: all 0.2s ease;
+    }
+    .btn-secondary:hover {
+        background-color: #4a5568;
+    }
+    .code-digit {
+        width: 50px;
+        height: 60px;
+        font-size: 18px;
+        font-weight: 600;
+        text-align: center;
+        border-radius: 8px;
+        border: 2px solid #374151;
+        background-color: #1f2937;
+        color: #f8f9fa;
+        text-transform: uppercase;
+        transition: all 0.2s ease;
+    }
+    .code-digit:focus {
+        border-color: #8ab4f8;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(138, 180, 248, 0.1);
+    }
+    .divider {
+        display: flex;
+        align-items: center;
+        text-align: center;
+        color: #9ca3af;
+        margin: 20px 0;
+    }
+    .divider::before,
+    .divider::after {
+        content: '';
+        flex: 1;
+        border-bottom: 1px solid #374151;
+    }
+    .divider::before {
+        margin-right: 15px;
+    }
+    .divider::after {
+        margin-left: 15px;
+    }
+    .logo-text {
+        background: linear-gradient(90deg, #8ab4f8, #1a73e8);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+    }
+    .animate-fade-in {
+        animation: fadeIn 0.3s ease-in-out;
+    }
+</style>
+}
+
+@section Scripts {
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.3/jquery.validate.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.12/jquery.validate.unobtrusive.min.js"></script>
+
+<script>
+    let selectedBoardType = '';
+
+    // ============= BOARD TİPİ SEÇ =============
+    function selectBoardType(type) {
+        selectedBoardType = type;
+        document.getElementById('boardTypeModal').classList.remove('hidden');
+
+        if (type === 'personal') {
+            document.getElementById('modalTitle').textContent = 'Create Personal Board';
+            document.getElementById('personalBoardForm').classList.remove('hidden');
+            document.getElementById('teamBoardForm').classList.add('hidden');
+        } else {
+            document.getElementById('modalTitle').textContent = 'Create Team Board';
+            document.getElementById('teamBoardForm').classList.remove('hidden');
+            document.getElementById('personalBoardForm').classList.add('hidden');
+        }
+
+        // Şifre alanlarını sıfırla
+        resetPasswordFields();
+    }
+
+    // ============= ŞİFRE ALANLARINI SIFIRLA =============
+    function resetPasswordFields() {
+        // Personal board şifre alanları
+        const enablePersonal = document.getElementById('enablePersonalPassword');
+        if (enablePersonal) {
+            enablePersonal.checked = false;
+            document.getElementById('personalPasswordSection')?.classList.add('hidden');
+            const personalPass = document.getElementById('personalBoardPassword');
+            if (personalPass) {
+                personalPass.disabled = true;
+                personalPass.value = '';
+            }
+        }
+
+        // Team board şifre alanları
+        const enableTeam = document.getElementById('enableTeamPassword');
+        if (enableTeam) {
+            enableTeam.checked = false;
+            document.getElementById('teamPasswordSection')?.classList.add('hidden');
+            const teamPass = document.getElementById('teamBoardPassword');
+            if (teamPass) {
+                teamPass.disabled = true;
+                teamPass.value = '';
+            }
+        }
+
+        // Hata mesajlarını gizle
+        document.querySelectorAll('.password-error').forEach(el => el.classList.add('hidden'));
+    }
+
+    // ============= MODAL KAPAT =============
+    function closeModal() {
+        document.getElementById('boardTypeModal').classList.add('hidden');
+        document.getElementById('personalBoardName').value = '';
+        document.getElementById('teamBoardName').value = '';
+        document.getElementById('teamBoardDescription').value = '';
+        resetPasswordFields();
+    }
+
+    // ============= BOARD OLUŞTUR =============
+    function createBoard(type) {
+        let boardName, boardDescription = '';
+        let enablePassword = false;
+        let boardPassword = '';
+
+        if (type === 'personal') {
+            boardName = document.getElementById('personalBoardName').value;
+            if (!boardName) {
+                alert('Please enter a board name');
+                return;
+            }
+
+            // Şifre kontrolü
+            enablePassword = document.getElementById('enablePersonalPassword')?.checked || false;
+            if (enablePassword) {
+                boardPassword = document.getElementById('personalBoardPassword')?.value || '';
+                if (boardPassword.length < 4) {
+                    document.getElementById('personalPasswordError').classList.remove('hidden');
+                    document.getElementById('personalBoardPassword').classList.add('border-red-500');
+                    return;
+                }
+            }
+        } else {
+            boardName = document.getElementById('teamBoardName').value;
+            boardDescription = document.getElementById('teamBoardDescription').value;
+            if (!boardName) {
+                alert('Please enter a board name');
+                return;
+            }
+
+            // Şifre kontrolü
+            enablePassword = document.getElementById('enableTeamPassword')?.checked || false;
+            if (enablePassword) {
+                boardPassword = document.getElementById('teamBoardPassword')?.value || '';
+                if (boardPassword.length < 4) {
+                    document.getElementById('teamPasswordError').classList.remove('hidden');
+                    document.getElementById('teamBoardPassword').classList.add('border-red-500');
+                    return;
+                }
+            }
+        }
+
+        const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+        if (!token) {
+            alert('Security token not found. Please refresh the page.');
+            return;
+        }
+
+        const requestData = {
+            Name: boardName,
+            Description: boardDescription,
+            BoardType: type,
+            EnablePassword: enablePassword,
+            Password: boardPassword
+        };
+
+        console.log('Sending:', requestData);
+
+        fetch('/Dashboard/CreateBoard', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'RequestVerificationToken': token
+            },
+            body: JSON.stringify(requestData)
+        })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Response:', data);
+                if (data.success) {
+                    window.location.href = `/Board/Index/${data.boardId}`;
+                } else {
+                    alert('Failed to create board: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Failed to create board. Please try again.');
+            });
+    }
+
+    // ============= ŞİFRE GÖSTER/GİZLE =============
+    function initPasswordToggles() {
+        document.querySelectorAll('.toggle-password-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const input = this.previousElementSibling;
+                const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
+                input.setAttribute('type', type);
+                this.innerHTML = type === 'password' ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>';
+            });
+        });
+    }
+
+    // ============= ŞİFRE KUTUSU KONTROLLERİ =============
+    function initPasswordControls() {
+        // Personal board
+        const enablePersonal = document.getElementById('enablePersonalPassword');
+        if (enablePersonal) {
+            enablePersonal.addEventListener('change', function() {
+                const section = document.getElementById('personalPasswordSection');
+                const input = document.getElementById('personalBoardPassword');
+                const error = document.getElementById('personalPasswordError');
+
+                if (this.checked) {
+                    section.classList.remove('hidden');
+                    section.classList.add('slide-up');
+                    input.disabled = false;
+                    input.focus();
+                } else {
+                    section.classList.add('hidden');
+                    input.disabled = true;
+                    input.value = '';
+                    error?.classList.add('hidden');
+                    input.classList.remove('border-red-500');
+                }
+            });
+        }
+
+        // Team board
+        const enableTeam = document.getElementById('enableTeamPassword');
+        if (enableTeam) {
+            enableTeam.addEventListener('change', function() {
+                const section = document.getElementById('teamPasswordSection');
+                const input = document.getElementById('teamBoardPassword');
+                const error = document.getElementById('teamPasswordError');
+
+                if (this.checked) {
+                    section.classList.remove('hidden');
+                    section.classList.add('slide-up');
+                    input.disabled = false;
+                    input.focus();
+                } else {
+                    section.classList.add('hidden');
+                    input.disabled = true;
+                    input.value = '';
+                    error?.classList.add('hidden');
+                    input.classList.remove('border-red-500');
+                }
+            });
+        }
+
+        // Canlı şifre kontrolü
+        const personalPass = document.getElementById('personalBoardPassword');
+        if (personalPass) {
+            personalPass.addEventListener('input', function() {
+                const error = document.getElementById('personalPasswordError');
+                if (this.value.length >= 4) {
+                    error?.classList.add('hidden');
+                    this.classList.remove('border-red-500');
+                    this.classList.add('border-green-500');
+                } else {
+                    this.classList.remove('border-green-500');
+                }
+            });
+            personalPass.addEventListener('blur', function() {
+                this.classList.remove('border-green-500', 'border-red-500');
+            });
+        }
+
+        const teamPass = document.getElementById('teamBoardPassword');
+        if (teamPass) {
+            teamPass.addEventListener('input', function() {
+                const error = document.getElementById('teamPasswordError');
+                if (this.value.length >= 4) {
+                    error?.classList.add('hidden');
+                    this.classList.remove('border-red-500');
+                    this.classList.add('border-green-500');
+                } else {
+                    this.classList.remove('border-green-500');
+                }
+            });
+            teamPass.addEventListener('blur', function() {
+                this.classList.remove('border-green-500', 'border-red-500');
+            });
+        }
+    }
+
+    // ============= GELİŞMİŞ JOIN FORM KONTROLLERİ =============
+    document.addEventListener('DOMContentLoaded', function() {
+        const joinBtn = document.getElementById('joinBtn');
+        const joinForm = document.getElementById('joinForm');
+        const backBtn = document.getElementById('backBtn');
+        const codeInputs = document.querySelectorAll('.code-digit');
+        const enteredCodeSpan = document.getElementById('enteredCode');
+        const accessCodeInput = document.getElementById('accessCode');
+        const toggleJoinPassword = document.getElementById('toggleJoinPassword');
+        const dashboardPassword = document.getElementById('Password');
+        const joinDashboardForm = document.getElementById('joinDashboardForm');
+        const joinPasswordSection = document.getElementById('joinPasswordSection');
+
+        // Model'den gelen RequiresPassword değerine göre şifre alanını göster
+        const requiresPassword = @Json.Serialize(Model?.RequiresPassword ?? false);
+
+        // Eğer kod varsa inputları doldur
+        function populateCodeInputs(code) {
+            if (code && code.length === 6) {
+                for (let i = 0; i < 6; i++) {
+                    if (codeInputs[i]) {
+                        codeInputs[i].value = code[i];
+                    }
+                }
+                updateEnteredCode();
+            }
+        }
+
+        // Join formunu göster (eğer RequiresPassword true ise otomatik aç)
+        if (joinBtn) {
+            if (requiresPassword) {
+                // Eğer şifre gerekiyorsa formu otomatik aç
+                setTimeout(() => {
+                    joinBtn.classList.add('hidden');
+                    joinForm.classList.remove('hidden');
+                    joinForm.classList.add('slide-up');
+
+                    // Model'deki kodu doldur
+                    const modelCode = '@(Model?.AccessCode ?? "")';
+                    populateCodeInputs(modelCode);
+
+                    setTimeout(() => {
+                        if (codeInputs.length > 0) {
+                            // Boş olan ilk input'a focus
+                            for (let i = 0; i < codeInputs.length; i++) {
+                                if (!codeInputs[i].value) {
+                                    codeInputs[i].focus();
+                                    break;
+                                }
+                            }
+                        }
+                    }, 100);
+                }, 100);
+            } else {
+                joinBtn.addEventListener('click', function() {
+                    joinBtn.classList.add('hidden');
+                    joinForm.classList.remove('hidden');
+                    joinForm.classList.add('slide-up');
+                    setTimeout(() => {
+                        if (codeInputs.length > 0) codeInputs[0].focus();
+                    }, 100);
+                });
+            }
+        }
+
+        // Geri butonu
+        if (backBtn) {
+            backBtn.addEventListener('click', function() {
+                joinForm.classList.add('hidden');
+                joinBtn.classList.remove('hidden');
+                codeInputs.forEach(input => input.value = '');
+                enteredCodeSpan.textContent = '______';
+                accessCodeInput.value = '';
+
+                // Şifre bölümünü gizle
+                if (joinPasswordSection) {
+                    joinPasswordSection.classList.add('hidden');
+                }
+
+                // Şifre alanını temizle
+                if (dashboardPassword) {
+                    dashboardPassword.value = '';
+                }
+            });
+        }
+
+        // Kod giriş işlemleri
+        codeInputs.forEach((input, index) => {
+            input.addEventListener('input', function(e) {
+                if (/^[A-Za-z0-9]$/.test(e.target.value)) {
+                    e.target.value = e.target.value.toUpperCase();
+                    if (index < codeInputs.length - 1) codeInputs[index + 1].focus();
+                    updateEnteredCode();
+                    updateAccessCodeInput();
+
+                    // 6 karakter tamamlandığında şifre kontrolü yap
+                    if (getFullCode().length === 6) {
+                        checkBoardPasswordRequirement();
+                    }
+                } else {
+                    e.target.value = '';
+                }
+            });
+
+            input.addEventListener('keydown', function(e) {
+                if (e.key === 'Backspace') {
+                    if (input.value === '' && index > 0) {
+                        codeInputs[index - 1].focus();
+                    }
+                    setTimeout(() => {
+                        updateEnteredCode();
+                        updateAccessCodeInput();
+
+                        // Şifre bölümünü gizle (kod değiştiğinde)
+                        if (joinPasswordSection) {
+                            joinPasswordSection.classList.add('hidden');
+                        }
+                    }, 10);
+                }
+                if (e.key === 'ArrowLeft' && index > 0) codeInputs[index - 1].focus();
+                if (e.key === 'ArrowRight' && index < codeInputs.length - 1) codeInputs[index + 1].focus();
+            });
+        });
+
+        function updateEnteredCode() {
+            let code = '';
+            codeInputs.forEach(input => code += input.value || '_');
+            enteredCodeSpan.textContent = code;
+        }
+
+        function updateAccessCodeInput() {
+            let code = '';
+            codeInputs.forEach(input => code += input.value);
+            accessCodeInput.value = code;
+        }
+
+        function getFullCode() {
+            let code = '';
+            codeInputs.forEach(input => code += input.value);
+            return code;
+        }
+
+        // Board'un şifre gerektirip gerektirmediğini kontrol et
+        async function checkBoardPasswordRequirement() {
+            const code = getFullCode();
+            if (code.length !== 6) return;
+
+            try {
+                const response = await fetch(`/Dashboard/CheckBoardPassword?code=${code}`);
+                const data = await response.json();
+
+                if (data.requiresPassword) {
+                    joinPasswordSection.classList.remove('hidden');
+                    joinPasswordSection.classList.add('slide-up');
+
+                    // Eğer şifre alanı açıldıysa focus yap
+                    setTimeout(() => {
+                        if (dashboardPassword) dashboardPassword.focus();
+                    }, 300);
+                } else {
+                    joinPasswordSection.classList.add('hidden');
+                }
+            } catch (error) {
+                console.error('Error checking board:', error);
+            }
+        }
+
+        // Join form şifre göster/gizle
+        if (toggleJoinPassword && dashboardPassword) {
+            toggleJoinPassword.addEventListener('click', function() {
+                const type = dashboardPassword.getAttribute('type') === 'password' ? 'text' : 'password';
+                dashboardPassword.setAttribute('type', type);
+                this.innerHTML = type === 'password' ?
+                    '<i class="fas fa-eye"></i>' :
+                    '<i class="fas fa-eye-slash"></i>';
+            });
+        }
+
+        // Join form submit kontrolü
+        if (joinDashboardForm) {
+            joinDashboardForm.addEventListener('submit', async function(e) {
+                const code = accessCodeInput.value;
+                if (code.length !== 6) {
+                    e.preventDefault();
+                    alert('Please enter a valid 6-character access code');
+                    return;
+                }
+
+                // Önce board'un şifre gerektirip gerektirmediğini kontrol et
+                try {
+                    const response = await fetch(`/Dashboard/CheckBoardPassword?code=${code}`);
+                    const data = await response.json();
+
+                    if (data.requiresPassword) {
+                        const password = dashboardPassword.value;
+                        if (!password) {
+                            e.preventDefault();
+                            alert('This board requires a password');
+                            return;
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error checking board:', error);
+                }
+            });
+        }
+
+        // Sayfa yüklendiğinde kodu güncelle
+        updateEnteredCode();
+        updateAccessCodeInput();
+
+        // Model'de kod varsa ve RequiresPassword true ise otomatik kontrol yap
+        if (requiresPassword && accessCodeInput.value.length === 6) {
+            setTimeout(() => {
+                checkBoardPasswordRequirement();
+            }, 500);
+        }
+
+        // Initialize password controls
+        initPasswordToggles();
+        initPasswordControls();
+    });
+</script>
+}

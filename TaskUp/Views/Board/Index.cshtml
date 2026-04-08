@@ -1,0 +1,2001 @@
+@using System.Linq
+@using TaskUp.Utilities.Enums
+@model TaskUp.Models.Board
+
+@{
+    ViewData["Title"] = Model.Name;
+    Layout = "_BoardLayout";
+
+    ViewBag.BoardId = Model.Id;
+    ViewBag.BoardTitle = Model.Name;
+    ViewBag.BoardDescription = Model.Description;
+    ViewBag.JoinCode = Model.JoinCode;
+    ViewBag.MemberCount = Model.Members?.Count ?? 0;
+}
+
+<!-- Board Header -->
+<header class="bg-gray-900 border-b border-gray-800 px-8 py-4">
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-2xl font-bold text-white">@Model.Name</h1>
+            <div class="flex items-center space-x-4 mt-2 text-sm text-gray-400">
+                <span class="flex items-center">
+                    <i class="fas fa-users mr-2"></i>
+                    <span>@(Model.Members?.Count ?? 0) members</span>
+                </span>
+                <span class="flex items-center">
+                    <i class="fas fa-tasks mr-2"></i>
+                    <span>@(Model.Columns?.Sum(c => c.Tasks?.Count ?? 0) ?? 0) tasks</span>
+                </span>
+                @if (!string.IsNullOrEmpty(Model.Description))
+                {
+                    <span class="flex items-center">
+                        <i class="fas fa-info-circle mr-2"></i>
+                        <span>@Model.Description</span>
+                    </span>
+                }
+            </div>
+        </div>
+
+        <div class="flex items-center space-x-4">
+            <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <i class="fas fa-search text-gray-500"></i>
+                </div>
+                <input type="text"
+                       id="searchTasks"
+                       class="w-64 bg-gray-800 border border-gray-700 rounded-xl py-2 pl-10 pr-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                       placeholder="Search tasks...">
+            </div>
+
+            <button id="shareBoardBtn"
+                    class="px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-xl text-sm font-medium flex items-center">
+                <i class="fas fa-share-alt mr-2"></i>
+                Share
+                <span class="ml-2 px-2 py-1 bg-gray-700 text-xs rounded">@Model.JoinCode</span>
+            </button>
+
+            <button id="chatToggleBtn"
+                    class="px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-xl text-sm font-medium flex items-center">
+                <i class="fas fa-comments mr-2"></i>
+                Chat
+            </button>
+
+            <button id="addColumnBtn"
+                    class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-xl text-sm font-medium flex items-center">
+                <i class="fas fa-plus mr-2"></i>
+                Add Column
+            </button>
+        </div>
+    </div>
+</header>
+
+<!-- Main Content Area -->
+<div class="flex flex-1 overflow-hidden">
+    <!-- Kanban Board -->
+    <div class="flex-1 overflow-x-auto p-6 transition-all duration-300" id="boardContainer">
+        <div id="boardColumns" class="flex space-x-6 min-w-max">
+            @if (Model.Columns != null)
+            {
+                @foreach (var column in Model.Columns.OrderBy(c => c.Order))
+                {
+                    <div class="w-80 flex-shrink-0 column" data-column-id="@column.Id">
+                        <div
+                            class="bg-gray-900 rounded-t-2xl p-4 border-b border-gray-800 flex items-center justify-between">
+                            <div class="flex items-center">
+                                <h3 class="font-semibold text-lg column-title">@column.Name</h3>
+                                <span class="ml-3 px-2 py-1 bg-gray-800 text-gray-400 text-xs rounded-full task-count">
+                                    @(column.Tasks?.Count ?? 0)
+                                </span>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <button class="text-gray-400 hover:text-white p-1 column-menu-btn">
+                                    <i class="fas fa-ellipsis-h"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div
+                            class="bg-gray-900 rounded-b-2xl p-4 min-h-[500px] max-h-[calc(100vh-200px)] overflow-y-auto space-y-3 drag-drop-container"
+                            data-column-id="@column.Id">
+                            @if (column.Tasks != null)
+                            {
+                                @foreach (var task in column.Tasks.OrderBy(t => t.Order))
+                                {
+                                    var priorityClass = task.Priority switch
+                                    {
+                                        TaskPriority.Urgent => "bg-purple-900/30 text-purple-400 border-purple-700/30",
+                                        TaskPriority.High => "bg-red-900/30 text-red-400 border-red-700/30",
+                                        TaskPriority.Medium => "bg-yellow-900/30 text-yellow-400 border-yellow-700/30",
+                                        TaskPriority.Low => "bg-green-900/30 text-green-400 border-green-700/30",
+                                        _ => "bg-gray-700 text-gray-400 border-gray-600"
+                                    };
+
+                                    <div
+                                        class="task-card bg-gray-800 rounded-xl p-4 cursor-move hover:bg-gray-750 border border-gray-700 hover:border-gray-600 transition-all"
+                                        data-task-id="@task.Id"
+                                        data-task-title="@task.Title"
+                                        data-task-priority="@task.Priority">
+                                        <div class="flex justify-between items-start mb-3 gap-2">
+                                            <h4 class="font-medium text-white text-sm flex-1 task-title">@task.Title</h4>
+                                            <span
+                                                class="px-2 py-0.5 rounded text-[10px] font-medium border @priorityClass shrink-0 priority-badge">
+                                                @task.Priority.ToString()
+                                            </span>
+                                        </div>
+
+                                        @if (!string.IsNullOrEmpty(task.Description))
+                                        {
+                                            <p class="text-gray-400 text-xs mb-4 line-clamp-2 task-description">@task.Description</p>
+                                        }
+
+                                        <div class="flex items-center justify-between text-xs mb-3">
+                                            @if (task.DueDate.HasValue)
+                                            {
+                                                var isOverdue = task.DueDate < DateTime.Now;
+                                                var dateClass = isOverdue ? "text-red-400" : "text-gray-400";
+                                                <span class="flex items-center @dateClass due-date">
+                                                    <i class="fas fa-calendar-alt mr-1.5"></i>
+                                                    @task.DueDate.Value.ToString("MMM dd")
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-gray-500 italic">No date</span>
+                                            }
+
+                                            <div class="flex items-center -space-x-2 assignees">
+                                                @if (task.Assignees != null && task.Assignees.Any())
+                                                {
+                                                    @foreach (var assignee in task.Assignees.Take(3))
+                                                    {
+                                                        <div
+                                                            class="w-7 h-7 rounded-full bg-gray-700 border-2 border-gray-900 flex items-center justify-center text-[10px] text-white font-bold assignee-avatar"
+                                                            title="@assignee.User?.UserName"
+                                                            data-user-id="@assignee.UserId">
+                                                            @(assignee.User?.UserName?.Substring(0, 1).ToUpper() ?? "?")
+                                                        </div>
+                                                    }
+
+                                                    @if (task.Assignees.Count > 3)
+                                                    {
+                                                        <div
+                                                            class="w-7 h-7 rounded-full bg-gray-700 border-2 border-gray-900 flex items-center justify-center text-[10px] text-white font-bold">
+                                                            +@(task.Assignees.Count - 3)
+                                                        </div>
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    <div
+                                                        class="w-7 h-7 rounded-full bg-gray-700 border-2 border-gray-900 flex items-center justify-center text-xs text-gray-500">
+                                                        <i class="fas fa-user"></i>
+                                                    </div>
+                                                }
+                                            </div>
+                                        </div>
+
+                                        <div class="pt-2 border-t border-gray-700 flex items-center gap-3 text-xs text-gray-500">
+    <button onclick="pinTask(@task.Id)" 
+            class="flex items-center hover:text-yellow-400 transition-colors" 
+            title="Pin to top">
+        <i class="fas fa-thumbtack mr-1.5"></i>
+        <span>Pin</span>
+    </button>
+    <button onclick="deleteTask(@task.Id)" 
+            class="flex items-center hover:text-red-400 ml-auto transition-colors" 
+            title="Delete task">
+        <i class="fas fa-trash-alt mr-1.5"></i>
+        <span>Delete</span>
+    </button>
+</div>
+                                    </div>
+                                }
+                            }
+
+                            <button
+                                class="add-task-btn w-full p-3 text-gray-400 hover:text-white hover:bg-gray-800 rounded-xl border-2 border-dashed border-gray-700 hover:border-gray-600 transition-colors flex items-center justify-center">
+                                <i class="fas fa-plus mr-2"></i>
+                                Add Task
+                            </button>
+                        </div>
+                    </div>
+                }
+            }
+
+            <div class="w-80 flex-shrink-0">
+                <div
+                    class="bg-gray-900 rounded-2xl p-6 border-2 border-dashed border-gray-700 hover:border-gray-600 transition-colors h-full flex flex-col items-center justify-center">
+                    <div class="w-12 h-12 rounded-full bg-gray-800 flex items-center justify-center mb-4">
+                        <i class="fas fa-plus text-2xl text-gray-400"></i>
+                    </div>
+                    <h3 class="text-lg font-medium text-gray-300 mb-2">Add New Column</h3>
+                    <p class="text-gray-500 text-center text-sm mb-4">Create a new column for your workflow</p>
+                    <button id="addNewColumnBtn"
+                            class="px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-xl text-sm font-medium">
+                        Create Column
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chat Sidebar -->
+    @Html.Partial("_ChatSidebar", Model.Id)
+
+</div>
+
+<!-- Members Sidebar -->
+<div id="membersSidebar"
+     class="fixed inset-y-0 right-0 w-80 bg-gray-900 border-l border-gray-800 transform transition-transform duration-300 translate-x-full z-40 overflow-hidden flex flex-col">
+    <div class="p-4 border-b border-gray-800 flex items-center justify-between">
+        <h3 class="font-semibold text-white flex items-center">
+            <i class="fas fa-users text-blue-400 mr-2"></i>
+            Board Members
+            <span class="ml-2 px-2 py-0.5 bg-gray-800 text-xs rounded-full">@(Model.Members?.Count ?? 0)</span>
+        </h3>
+        <button id="closeMembersBtn" class="text-gray-400 hover:text-white">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+
+    <div class="flex-1 overflow-y-auto p-4">
+        <div class="mb-6">
+            <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Owner</h4>
+            <div class="flex items-center justify-between p-3 bg-gray-800/50 rounded-xl member-item"
+                 data-user-id="@Model.OwnerId">
+                <div class="flex items-center">
+                    <div class="w-10 h-10 rounded-full bg-blue-900/30 flex items-center justify-center mr-3">
+                        <span class="text-sm font-bold text-blue-400">
+                            @(Model.Owner?.UserName?.Substring(0, 1).ToUpper() ?? "O")
+                        </span>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-white">@Model.Owner?.UserName</p>
+                        <p class="text-xs text-gray-500">@Model.Owner?.Email</p>
+                    </div>
+                </div>
+                <span class="px-2 py-1 bg-blue-900/30 text-blue-400 text-xs rounded-full">Owner</span>
+            </div>
+        </div>
+
+        @if (Model.Members != null && Model.Members.Any())
+        {
+            <div>
+                <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Members</h4>
+                <div class="space-y-2">
+                    @foreach (var member in Model.Members.Where(m => m.UserId != Model.OwnerId))
+                    {
+                        <div
+                            class="flex items-center justify-between p-3 bg-gray-800/30 hover:bg-gray-800/50 rounded-xl transition-colors member-item"
+                            data-user-id="@member.UserId"
+                            data-user-role="@member.Role">
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center mr-3">
+                                    <span class="text-sm font-bold text-gray-300">
+                                        @(member.User?.UserName?.Substring(0, 1).ToUpper() ?? "?")
+                                    </span>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-medium text-white">@member.User?.UserName</p>
+                                    <p class="text-xs text-gray-500">@member.User?.Email</p>
+                                </div>
+                            </div>
+
+                            @if (User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value == Model.OwnerId)
+                            {
+                                <div class="relative member-menu-container">
+                                    <button class="text-gray-400 hover:text-white p-2 member-menu-btn">
+                                        <i class="fas fa-ellipsis-v"></i>
+                                    </button>
+                                    <div
+                                        class="absolute right-0 mt-2 w-48 bg-gray-800 border border-gray-700 rounded-xl shadow-lg py-1 z-50 hidden member-dropdown">
+                                        <button
+                                            class="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 flex items-center kick-btn"
+                                            data-user-id="@member.UserId">
+                                            <i class="fas fa-user-minus mr-2 text-yellow-400"></i>
+                                            Kick (Can rejoin)
+                                        </button>
+                                        <button
+                                            class="w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-gray-700 flex items-center ban-btn"
+                                            data-user-id="@member.UserId">
+                                            <i class="fas fa-ban mr-2"></i>
+                                            Ban (Permanent)
+                                        </button>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+
+
+</div>
+
+<!-- Add Column Modal -->
+<div id="addColumnModal" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 hidden">
+    <div class="bg-gray-900 rounded-2xl p-8 w-full max-w-md mx-4">
+        <div class="flex items-center justify-between mb-6">
+            <h3 class="text-xl font-bold text-white">Create New Column</h3>
+            <button id="closeModal" class="text-gray-400 hover:text-white">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+        <form id="createColumnForm">
+            @Html.AntiForgeryToken()
+            <div class="mb-6">
+                <label class="block text-gray-300 mb-2">Column Name</label>
+                <input type="text" id="columnName"
+                       class="w-full bg-gray-800 border border-gray-700 rounded-xl py-3 px-4 text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
+                       placeholder="e.g., In Progress, Review" required>
+            </div>
+            <div class="flex justify-end space-x-4">
+                <button type="button" id="cancelBtn"
+                        class="px-6 py-3 bg-gray-800 hover:bg-gray-700 rounded-xl font-medium">Cancel
+                </button>
+                <button type="submit" class="px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-xl font-medium">Create
+                    Column
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Add Task Modal -->
+<div id="addTaskModal" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 hidden">
+    <div class="bg-gray-900 rounded-2xl p-8 w-full max-w-lg mx-4 border border-gray-800 shadow-2xl">
+        <div class="flex items-center justify-between mb-6">
+            <h3 class="text-xl font-bold text-white" id="taskModalTitle">Add New Task</h3>
+            <button id="closeTaskModal" class="text-gray-400 hover:text-white">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+
+        <form id="createTaskForm">
+            @Html.AntiForgeryToken()
+            <input type="hidden" id="taskColumnId" value="">
+
+            <div class="mb-6">
+                <label class="block text-gray-300 text-sm font-medium mb-2">Task Title *</label>
+                <input type="text"
+                       id="taskTitle"
+                       class="w-full bg-gray-800 border border-gray-700 rounded-xl py-3 px-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                       placeholder="What needs to be done?"
+                       required>
+            </div>
+
+            <div class="mb-6">
+                <label class="block text-gray-300 text-sm font-medium mb-2">Description (Optional)</label>
+                <textarea id="taskDescription"
+                          rows="3"
+                          class="w-full bg-gray-800 border border-gray-700 rounded-xl py-3 px-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          placeholder="Add more details..."></textarea>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4 mb-6">
+                <div>
+                    <label class="block text-gray-300 text-sm font-medium mb-2">Priority</label>
+                    <select id="taskPriority"
+                            class="w-full bg-gray-800 border border-gray-700 rounded-xl py-3 px-4 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="Low">Low</option>
+                        <option value="Medium" selected>Medium</option>
+                        <option value="High">High</option>
+                        <option value="Urgent">Urgent</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-gray-300 text-sm font-medium mb-2">Due Date</label>
+                    <input type="date"
+                           id="taskDueDate"
+                           class="w-full bg-gray-800 border border-gray-700 rounded-xl py-3 px-4 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+            </div>
+
+            <div class="flex justify-end space-x-4">
+                <button type="button" id="cancelTaskBtn"
+                        class="px-6 py-3 bg-gray-800 hover:bg-gray-700 rounded-xl font-medium transition-colors">
+                    Cancel
+                </button>
+                <button type="submit"
+                        class="px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-xl font-medium text-white transition-colors">
+                    <i class="fas fa-plus mr-2"></i>
+                    Create Task
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+@Html.Partial("_UserProfileModal")
+
+
+<!-- Invite Member Modal -->
+<div id="inviteMemberModal" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 hidden">
+    <div class="bg-gray-900 rounded-2xl p-8 w-full max-w-md mx-4">
+        <div class="flex items-center justify-between mb-6">
+            <h3 class="text-xl font-bold text-white">Invite Member</h3>
+            <button id="closeInviteModal" class="text-gray-400 hover:text-white">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+
+        <form id="inviteMemberForm">
+            @Html.AntiForgeryToken()
+            <div class="mb-6">
+                <label class="block text-gray-300 text-sm font-medium mb-2">Email Address</label>
+                <input type="email"
+                       id="inviteEmail"
+                       class="w-full bg-gray-800 border border-gray-700 rounded-xl py-3 px-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                       placeholder="colleague@example.com"
+                       required>
+            </div>
+
+            <div class="mb-6">
+                <label class="block text-gray-300 text-sm font-medium mb-2">Role</label>
+                <select id="inviteRole"
+                        class="w-full bg-gray-800 border border-gray-700 rounded-xl py-3 px-4 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="Member">Member</option>
+                    <option value="Admin">Admin</option>
+                </select>
+            </div>
+
+            <div class="flex justify-end space-x-4">
+                <button type="button" id="cancelInviteBtn"
+                        class="px-6 py-3 bg-gray-800 hover:bg-gray-700 rounded-xl font-medium">
+                    Cancel
+                </button>
+                <button type="submit" class="px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-xl font-medium text-white">
+                    <i class="fas fa-paper-plane mr-2"></i>
+                    Send Invitation
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Task Details Modal -->
+<div id="taskDetailsModal" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 hidden">
+    <div class="bg-gray-900 rounded-2xl p-8 w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
+        <div class="flex items-center justify-between mb-6">
+            <h3 class="text-xl font-bold text-white" id="taskDetailsTitle">Task Details</h3>
+            <button id="closeTaskDetailsModal" class="text-gray-400 hover:text-white">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+        <div id="taskDetailsContent" class="space-y-6"></div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        /* ============= GENEL ============= */
+        .task-card {
+            transition: all 0.2s ease;
+        }
+
+        .task-card.dragging {
+            opacity: 0.5;
+            transform: rotate(3deg);
+        }
+
+        .task-card.drag-over {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
+        }
+
+        .line-clamp-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        /* ============= DRAG & DROP ============= */
+        .drag-drop-container {
+            scrollbar-width: thin;
+            scrollbar-color: #4b5563 #1f2937;
+        }
+
+        .drag-drop-container::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .drag-drop-container::-webkit-scrollbar-track {
+            background: #1f2937;
+            border-radius: 3px;
+        }
+
+        .drag-drop-container::-webkit-scrollbar-thumb {
+            background: #4b5563;
+            border-radius: 3px;
+        }
+
+        .drag-drop-container::-webkit-scrollbar-thumb:hover {
+            background: #6b7280;
+        }
+
+        #chatSidebar.hidden {
+            display: none !important;
+        }
+
+        #chatSidebar {
+            width: 20rem;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            background-color: #111827;
+        }
+
+        #chatMessages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+            min-height: 0;
+        }
+
+        #chatForm {
+            padding: 1rem;
+            border-top: 1px solid #1f2937;
+        }
+
+        /* Mesaj input container */
+        .message-input-container {
+            display: flex;
+            align-items: center;
+            position: relative;
+            width: 100%;
+        }
+
+        #chatMessageInput {
+            flex: 1;
+            background-color: #1f2937;
+            border: 1px solid #374151;
+            border-radius: 0.75rem;
+            padding: 0.75rem 1rem;
+            padding-right: 8rem; /* Dosya butonu + gönder butonu için yer */
+            color: white;
+            font-size: 0.875rem;
+        }
+
+        #chatMessageInput:focus {
+            outline: none;
+            ring: 2px solid #3b82f6;
+            border-color: #3b82f6;
+        }
+
+        /* Dosya yükleme butonu - solda */
+        .file-upload-btn {
+            position: absolute;
+            right: 4rem; /* Gönder butonunun solunda */
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #9ca3af;
+            transition: color 0.2s;
+            z-index: 10;
+        }
+
+        .file-upload-btn:hover {
+            color: white;
+        }
+
+        /* Gönder butonu - en sağda */
+        .send-btn {
+            position: absolute;
+            right: 0.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: #2563eb;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.75rem;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            white-space: nowrap;
+            z-index: 10;
+        }
+
+        .send-btn:hover {
+            background-color: #1d4ed8;
+        }
+
+        /* Dosya önizleme container */
+        #filePreviewContainer {
+            margin-bottom: 0.75rem;
+            padding: 0.5rem;
+            background-color: #1f2937;
+            border-radius: 0.5rem;
+            max-height: 120px;
+            overflow-y: auto;
+        }
+
+        #filePreviewContainer .flex {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        #filePreviewContainer .relative {
+            background-color: #374151;
+            border: 1px solid #4b5563;
+            border-radius: 0.5rem;
+            padding: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            min-width: 150px;
+        }
+
+        #filePreviewContainer .relative i {
+            font-size: 1rem;
+        }
+
+        #filePreviewContainer .relative .text-xs {
+            line-height: 1.25;
+        }
+
+        .remove-file {
+            color: #9ca3af;
+            transition: color 0.2s;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0.25rem;
+        }
+
+        .remove-file:hover {
+            color: #ef4444;
+        }
+
+        /* Chat mesajları */
+        .chat-message {
+            animation: slideIn 0.3s ease;
+            margin-bottom: 0.5rem;
+        }
+
+        .chat-message:last-child {
+            margin-bottom: 0;
+        }
+
+        /* ============= MEMBERS SIDEBAR ============= */
+        .member-item {
+            transition: all 0.2s ease;
+        }
+
+        .member-menu-container {
+            position: relative;
+        }
+
+        .member-dropdown {
+            min-width: 160px;
+            right: 0;
+            z-index: 100;
+        }
+
+        /* ============= ANİMASYONLAR ============= */
+        @@keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .highlight {
+            animation: highlight 0.5s ease;
+        }
+
+        @@keyframes highlight {
+            0% {
+                background-color: #1e3a8a;
+            }
+            100% {
+                background-color: #1f2937;
+            }
+        }
+    </style>
+}
+
+<!-- Board Settings Modal -->
+<div id="boardSettingsModal" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 hidden">
+    <div class="bg-gray-900 rounded-2xl p-8 w-full max-w-md mx-4 border border-gray-800 shadow-2xl">
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-6">
+            <h3 class="text-xl font-bold text-white flex items-center">
+                <i class="fas fa-cog text-blue-400 mr-3"></i>
+                Board Settings
+            </h3>
+            <button id="closeSettingsBtn" class="text-gray-400 hover:text-white">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+
+        <!-- Board Info -->
+        <div class="bg-gray-800/50 rounded-xl p-4 mb-6">
+            <div class="flex items-center">
+                <div class="w-10 h-10 rounded-full bg-blue-900/30 flex items-center justify-center mr-3">
+                    <i class="fas fa-tasks text-blue-400"></i>
+                </div>
+                <div>
+                    <h4 class="text-white font-medium">@Model.Name</h4>
+                    <p class="text-xs text-gray-400">Join Code: <span
+                            class="font-mono text-blue-400">@Model.JoinCode</span></p>
+                </div>
+            </div>
+            <div class="flex items-center justify-between mt-3 pt-3 border-t border-gray-700 text-sm">
+                <span class="text-gray-400">Total Members:</span>
+                <span class="text-white font-medium">@(Model.Members?.Count ?? 0)</span>
+            </div>
+            <div class="flex items-center justify-between mt-1 text-sm">
+                <span class="text-gray-400">Admins:</span>
+                <span class="text-white font-medium">
+                    @{
+                        var adminCount = Model.Members?.Count(m => m.Role == "Admin") ?? 1;
+                    }
+                    @adminCount
+                </span>
+            </div>
+        </div>
+
+        @{
+            var currentUserId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            var isOwner = currentUserId == Model.OwnerId;
+
+            // Admin kontrolü - null kontrolü ile
+            var isAdmin = false;
+            var adminCount2 = 0;
+            var otherMembers = new List<BoardMember>();
+
+            if (Model.Members != null)
+            {
+                isAdmin = Model.Members.Any(m => m.UserId == currentUserId && m.Role == "Admin");
+                adminCount2 = Model.Members.Count(m => m.Role == "Admin");
+
+                // Kendisi hariç diğer üyeler
+                otherMembers = Model.Members.Where(m => m.UserId != currentUserId).ToList();
+            }
+
+            var isOnlyAdmin = isAdmin && adminCount2 == 1;
+            var hasOtherMembers = otherMembers.Any();
+        }
+
+        <!-- Leave/Delete Board Section -->
+        <div class="space-y-4">
+            @if (isOwner || isAdmin)
+            {
+                <!-- Admin için TRANSFER seçeneği (her zaman göster, üye varsa) -->
+                @if (hasOtherMembers)
+                {
+                    <div class="bg-yellow-900/20 border border-yellow-800 rounded-xl p-5">
+                        <h4 class="text-white font-medium mb-3 flex items-center">
+                            <i class="fas fa-user-shield text-yellow-400 mr-2"></i>
+                            Option 1: Transfer & Leave
+                        </h4>
+                        <p class="text-sm text-gray-400 mb-4">
+                            Select a member to make them admin, then leave the board.
+                        </p>
+
+                        <select id="newAdminSelect"
+                                class="w-full bg-gray-800 border border-gray-700 rounded-xl py-3 px-4 text-white mb-4 focus:outline-none focus:ring-2 focus:ring-yellow-500">
+                            <option value="">Select a member...</option>
+                            @foreach (var member in otherMembers)
+                            {
+                                var roleText = member.Role == "Admin" ? " (Admin)" : " (Member)";
+                                <option value="@member.UserId" data-current-role="@member.Role">
+                                    @member.User?.UserName @roleText - @(member.User?.Email)
+                                </option>
+                            }
+                        </select>
+
+                        <button id="transferAndLeaveBtn"
+                                class="w-full py-3 bg-yellow-600 hover:bg-yellow-700 rounded-xl font-medium text-white transition-colors flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
+                                disabled>
+                            <i class="fas fa-sign-out-alt mr-2"></i>
+                            Transfer & Leave Board
+                        </button>
+                    </div>
+                }
+
+                <!-- Admin için SİLME seçeneği (her zaman göster) -->
+                <div class="bg-red-900/20 border border-red-800 rounded-xl p-5">
+                    <h4 class="text-white font-medium mb-3 flex items-center">
+                        <i class="fas fa-trash-alt text-red-400 mr-2"></i>
+                        Option 2: Delete Board Permanently
+                    </h4>
+                    <p class="text-sm text-gray-400 mb-4">
+                        @(hasOtherMembers
+                            ? "Warning: This will remove the board for ALL members. This action cannot be undone!"
+                            : "This will permanently delete the board. This action cannot be undone!")
+                    </p>
+                    <button id="deleteBoardBtn"
+                            class="w-full py-3 bg-red-600 hover:bg-red-700 rounded-xl font-medium text-white transition-colors flex items-center justify-center">
+                        <i class="fas fa-trash-alt mr-2"></i>
+                        Delete Board Permanently
+                    </button>
+                </div>
+            }
+            else
+            {
+                <!-- Normal üye için sadece ayrılma -->
+                <div class="bg-gray-800/50 rounded-xl p-5">
+                    <h4 class="text-white font-medium mb-3 flex items-center">
+                        <i class="fas fa-sign-out-alt text-gray-400 mr-2"></i>
+                        Leave Board
+                    </h4>
+                    <p class="text-sm text-gray-400 mb-4">
+                        Are you sure you want to leave this board? You'll need an invitation to rejoin.
+                    </p>
+                    <button id="leaveBoardBtn"
+                            class="w-full py-3 bg-gray-700 hover:bg-gray-600 rounded-xl font-medium text-white transition-colors flex items-center justify-center">
+                        <i class="fas fa-sign-out-alt mr-2"></i>
+                        Leave Board
+                    </button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const boardId = @Model.Id;
+            const currentUserId = '@User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value';
+            const isOwner = currentUserId === '@Model.OwnerId';
+
+            const chatToggleBtn = document.getElementById('chatToggleBtn');
+            const chatSidebar = document.getElementById('chatSidebar');
+            const closeChatBtn = document.getElementById('closeChatBtn');
+            const chatForm = document.getElementById('chatForm');
+            const chatMessages = document.getElementById('chatMessages');
+            const chatMessageInput = document.getElementById('chatMessageInput');
+            const fileInput = document.getElementById('fileInput');
+            const filePreviewContainer = document.getElementById('filePreviewContainer');
+
+            const settingsBtn = document.querySelector('a[title="Settings"]');
+            const settingsModal = document.getElementById('boardSettingsModal');
+            const closeSettingsBtn = document.getElementById('closeSettingsBtn');
+            const newAdminSelect = document.getElementById('newAdminSelect');
+            const transferAndLeaveBtn = document.getElementById('transferAndLeaveBtn');
+            const deleteBoardBtn = document.getElementById('deleteBoardBtn');
+            const leaveBoardBtn = document.getElementById('leaveBoardBtn');
+
+            let selectedFiles = [];
+            let chatInitialized = false;
+// ============= USER PROFILE MODAL =============
+           // const userAvatarBtn = document.querySelector('.w-10.h-10.rounded-full.bg-gray-800'); // İnsan butonu
+            // ============= USER PROFILE MODAL =============
+            const userAvatarBtn = document.querySelector('.flex.items-center.space-x-4 .w-10.h-10.rounded-full.bg-gray-800') ||
+                document.querySelector('button .w-10.h-10.rounded-full.bg-gray-800') ||
+                document.querySelector('.w-10.h-10.rounded-full.bg-gray-800');
+
+            console.log('User avatar button found:', userAvatarBtn);
+
+            const profileModal = document.getElementById('userProfileModal');
+            const closeProfileModal = document.getElementById('closeProfileModal');
+            const profileContent = document.getElementById('profileContent');
+
+            if (userAvatarBtn) {
+                userAvatarBtn.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('Avatar clicked!');
+
+                    fetch('/Account/GetCurrentUserProfile')
+                        .then(response => response.json())
+                        .then(data => {
+                            console.log('Profile data:', data);
+                            if (data.success) {
+                                profileContent.innerHTML = `
+                        <div class="flex flex-col items-center">
+                            <div class="w-24 h-24 rounded-full bg-blue-900/30 flex items-center justify-center mb-4 border-4 border-blue-500">
+                                <span class="text-3xl font-bold text-blue-400">${data.userName.charAt(0).toUpperCase()}</span>
+                            </div>
+                            <h4 class="text-xl font-bold text-white">${data.userName}</h4>
+                            <p class="text-gray-400">${data.email}</p>
+                            ${data.displayName ? `<p class="text-sm text-gray-500 mt-1">${data.displayName}</p>` : ''}
+                        </div>
+                        
+                        <div class="border-t border-gray-800 pt-4">
+                            <div class="flex items-center justify-between py-2">
+                                <span class="text-gray-400">Member since:</span>
+                                <span class="text-white">${new Date(data.createdAt).toLocaleDateString()}</span>
+                            </div>
+                            <div class="flex items-center justify-between py-2">
+                                <span class="text-gray-400">Total boards:</span>
+                                <span class="text-white">${data.boardCount}</span>
+                            </div>
+                        </div>
+                        
+<div class="flex justify-center mt-6">
+    <button onclick="window.location.href='/Dashboard/Index'" 
+            class="px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-xl font-medium text-white transition-colors flex items-center justify-center">
+        <i class="fas fa-tasks mr-2"></i>
+        Boards
+    </button>
+</div>
+                    `;
+
+                                profileModal.classList.remove('hidden');
+                            } else {
+                                console.error('Profile data error:', data.message);
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Profile fetch error:', error);
+                        });
+                });
+            } else {
+                console.error('❌ User avatar button not found!');
+            }
+
+            if (closeProfileModal) {
+                closeProfileModal.addEventListener('click', function () {
+                    profileModal.classList.add('hidden');
+                });
+            }
+
+            window.addEventListener('click', function (e) {
+                if (profileModal && e.target === profileModal) {
+                    profileModal.classList.add('hidden');
+                }
+});
+            if (chatToggleBtn) {
+                chatToggleBtn.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    chatSidebar.classList.toggle('hidden');
+
+                    if (!chatSidebar.classList.contains('hidden')) {
+                        setTimeout(() => {
+                            if (chatMessages) {
+                                chatMessages.scrollTop = chatMessages.scrollHeight;
+                            }
+                        }, 100);
+                    }
+                });
+            }
+
+            if (closeChatBtn) {
+                closeChatBtn.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    chatSidebar.classList.add('hidden');
+                });
+            }
+
+            document.addEventListener('click', function (e) {
+                if (chatSidebar && !chatSidebar.classList.contains('hidden')) {
+                    if (!chatSidebar.contains(e.target) &&
+                        e.target !== chatToggleBtn &&
+                        !chatToggleBtn?.contains(e.target)) {
+                        chatSidebar.classList.add('hidden');
+                    }
+                }
+            });
+
+            if (settingsBtn) {
+                settingsBtn.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    settingsModal.classList.remove('hidden');
+                    settingsBtn.style.cursor = 'pointer';
+                    return false;
+                });
+            }
+
+            if (closeSettingsBtn) {
+                closeSettingsBtn.addEventListener('click', function () {
+                    settingsModal.classList.add('hidden');
+                });
+            }
+
+            if (newAdminSelect) {
+                newAdminSelect.addEventListener('change', function () {
+                    if (transferAndLeaveBtn) {
+                        transferAndLeaveBtn.disabled = !this.value;
+                    }
+                });
+            }
+
+            if (transferAndLeaveBtn) {
+                transferAndLeaveBtn.addEventListener('click', function () {
+                    const newAdminId = newAdminSelect.value;
+                    const selectedOption = newAdminSelect.options[newAdminSelect.selectedIndex];
+                    const currentRole = selectedOption?.dataset.currentRole || 'Member';
+
+                    if (!newAdminId) {
+                        if (window.boardToast) {
+                            window.boardToast('Please select a new admin', 'warning');
+                        } else {
+                            alert('Please select a new admin');
+                        }
+                        return;
+                    }
+
+                    let confirmMessage = currentRole === 'Admin'
+                        ? 'Transfer admin role to another admin and leave?'
+                        : 'Make this member admin and leave the board?';
+
+                    if (confirm(confirmMessage)) {
+                        const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+
+                        fetch('/Board/TransferAdminAndLeave', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'RequestVerificationToken': token
+                            },
+                            body: JSON.stringify({
+                                boardId: boardId,
+                                newAdminId: newAdminId
+                            })
+                        })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    window.location.href = '/Dashboard/Index';
+                                } else {
+                                    if (window.boardToast) {
+                                        window.boardToast('Failed: ' + data.message, 'error');
+                                    } else {
+                                        alert('Failed: ' + data.message);
+                                    }
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                                if (window.boardToast) {
+                                    window.boardToast('Network error', 'error');
+                                } else {
+                                    alert('Network error');
+                                }
+                            });
+                    }
+                });
+            }
+
+            if (deleteBoardBtn) {
+                deleteBoardBtn.addEventListener('click', function () {
+                    if (confirm('⚠️ WARNING: This will permanently delete the board and all its tasks. This action cannot be undone!')) {
+                        const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+
+                        fetch('/Board/DeleteBoard', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'RequestVerificationToken': token
+                            },
+                            body: JSON.stringify({
+                                boardId: boardId
+                            })
+                        })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    window.location.href = '/Dashboard/Index';
+                                } else {
+                                    if (window.boardToast) {
+                                        window.boardToast('Failed: ' + data.message, 'error');
+                                    } else {
+                                        alert('Failed: ' + data.message);
+                                    }
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                                if (window.boardToast) {
+                                    window.boardToast('Network error', 'error');
+                                } else {
+                                    alert('Network error');
+                                }
+                            });
+                    }
+                });
+            }
+
+            if (leaveBoardBtn) {
+                leaveBoardBtn.addEventListener('click', function () {
+                    if (confirm('Are you sure you want to leave this board?')) {
+                        const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+
+                        fetch('/Board/LeaveBoard', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'RequestVerificationToken': token
+                            },
+                            body: JSON.stringify({
+                                boardId: boardId
+                            })
+                        })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    window.location.href = '/Dashboard/Index';
+                                } else {
+                                    if (window.boardToast) {
+                                        window.boardToast('Failed: ' + data.message, 'error');
+                                    } else {
+                                        alert('Failed: ' + data.message);
+                                    }
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                                if (window.boardToast) {
+                                    window.boardToast('Network error', 'error');
+                                } else {
+                                    alert('Network error');
+                                }
+                            });
+                    }
+                });
+            }
+
+            window.addEventListener('click', function (e) {
+                if (settingsModal && e.target === settingsModal) {
+                    settingsModal.classList.add('hidden');
+                }
+            });
+
+            if (fileInput) {
+                fileInput.addEventListener('change', function () {
+                    selectedFiles = Array.from(this.files);
+                    updateFilePreview();
+                });
+            }
+
+            function updateFilePreview() {
+                if (!filePreviewContainer) return;
+                if (selectedFiles.length === 0) {
+                    filePreviewContainer.classList.add('hidden');
+                    return;
+                }
+                filePreviewContainer.classList.remove('hidden');
+                const previewDiv = filePreviewContainer.querySelector('.flex');
+                if (!previewDiv) return;
+                previewDiv.innerHTML = '';
+
+                selectedFiles.forEach((file, index) => {
+                    const fileType = file.name.split('.').pop().toLowerCase();
+                    const iconClass = getFileIconClass(fileType);
+                    const fileSize = (file.size / 1024).toFixed(1) + ' KB';
+
+                    const fileElement = document.createElement('div');
+                    fileElement.className = 'relative bg-gray-800 rounded-lg p-2 flex items-center space-x-2 border border-gray-700';
+                    fileElement.innerHTML = `
+                        <i class="fas ${iconClass} text-blue-400"></i>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-xs text-white truncate">${file.name}</p>
+                            <p class="text-xs text-gray-500">${fileSize}</p>
+                        </div>
+                        <button type="button" class="remove-file text-gray-400 hover:text-white" data-index="${index}">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    `;
+                    previewDiv.appendChild(fileElement);
+                });
+
+                document.querySelectorAll('.remove-file').forEach(btn => {
+                    btn.addEventListener('click', function () {
+                        const index = parseInt(this.dataset.index);
+                        selectedFiles.splice(index, 1);
+                        const dt = new DataTransfer();
+                        selectedFiles.forEach(file => dt.items.add(file));
+                        if (fileInput) fileInput.files = dt.files;
+                        updateFilePreview();
+                    });
+                });
+            }
+
+            function getFileIconClass(extension) {
+                const imageExts = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+                const docExts = ['pdf', 'doc', 'docx', 'txt'];
+                const archiveExts = ['zip', 'rar', '7z'];
+                if (imageExts.includes(extension)) return 'fa-file-image';
+                if (docExts.includes(extension)) return 'fa-file-pdf';
+                if (archiveExts.includes(extension)) return 'fa-file-zipper';
+                return 'fa-file';
+            }
+
+            const addColumnBtn = document.getElementById('addColumnBtn');
+            const addNewColumnBtn = document.getElementById('addNewColumnBtn');
+            const addColumnModal = document.getElementById('addColumnModal');
+            const closeModal = document.getElementById('closeModal');
+            const cancelBtn = document.getElementById('cancelBtn');
+            const createColumnForm = document.getElementById('createColumnForm');
+
+            function showColumnModal() {
+                addColumnModal.classList.remove('hidden');
+            }
+
+            if (addColumnBtn) addColumnBtn.addEventListener('click', showColumnModal);
+            if (addNewColumnBtn) addNewColumnBtn.addEventListener('click', showColumnModal);
+
+            function closeModalFunc() {
+                addColumnModal.classList.add('hidden');
+                document.getElementById('columnName').value = '';
+            }
+
+            if (closeModal) closeModal.addEventListener('click', closeModalFunc);
+            if (cancelBtn) cancelBtn.addEventListener('click', closeModalFunc);
+
+            if (createColumnForm) {
+                createColumnForm.addEventListener('submit', function (e) {
+                    e.preventDefault();
+                    const columnName = document.getElementById('columnName').value.trim();
+                    const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+
+                    if (!columnName) {
+                        alert('Please enter a column name');
+                        return;
+                    }
+
+                    fetch('/Board/AddColumn', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'RequestVerificationToken': token
+                        },
+                        body: JSON.stringify({
+                            BoardId: boardId,
+                            Name: columnName
+                        })
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                addColumnToUI(data.columnId, columnName);
+                                closeModalFunc();
+                                window.boardToast('Column created successfully!', 'success');
+                            } else {
+                                alert('Failed to create column: ' + data.message);
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            alert('Failed to create column. Please try again.');
+                        });
+                });
+            }
+
+            function addColumnToUI(columnId, columnName) {
+                const boardColumns = document.getElementById('boardColumns');
+                const addColumnCard = boardColumns.lastElementChild;
+                const newColumn = document.createElement('div');
+                newColumn.className = 'w-80 flex-shrink-0 column';
+                newColumn.dataset.columnId = columnId;
+                newColumn.innerHTML = `
+                    <div class="bg-gray-900 rounded-t-2xl p-4 border-b border-gray-800 flex items-center justify-between">
+                        <div class="flex items-center">
+                            <h3 class="font-semibold text-lg column-title">${columnName}</h3>
+                            <span class="ml-3 px-2 py-1 bg-gray-800 text-gray-400 text-xs rounded-full task-count">0</span>
+                        </div>
+                        <button class="text-gray-400 hover:text-white p-1">
+                            <i class="fas fa-ellipsis-h"></i>
+                        </button>
+                    </div>
+                    <div class="bg-gray-900 rounded-b-2xl p-4 min-h-[500px] max-h-[calc(100vh-200px)] overflow-y-auto space-y-3 drag-drop-container"
+                         data-column-id="${columnId}">
+                        <button class="add-task-btn w-full p-3 text-gray-400 hover:text-white hover:bg-gray-800 rounded-xl border-2 border-dashed border-gray-700 hover:border-gray-600 transition-colors flex items-center justify-center">
+                            <i class="fas fa-plus mr-2"></i>
+                            Add Task
+                        </button>
+                    </div>
+                `;
+                boardColumns.insertBefore(newColumn, addColumnCard);
+                initDragDropForColumn(newColumn.querySelector('.drag-drop-container'));
+                newColumn.querySelector('.add-task-btn').addEventListener('click', function () {
+                    showAddTaskModal(this);
+                });
+            }
+
+            const addTaskModal = document.getElementById('addTaskModal');
+            const closeTaskModal = document.getElementById('closeTaskModal');
+            const cancelTaskBtn = document.getElementById('cancelTaskBtn');
+            const createTaskForm = document.getElementById('createTaskForm');
+
+            function showAddTaskModal(button) {
+                const column = button.closest('.drag-drop-container');
+                const columnId = column.dataset.columnId;
+                const columnName = column.parentElement.querySelector('.column-title').textContent;
+                document.getElementById('taskColumnId').value = columnId;
+                document.getElementById('taskModalTitle').textContent = `Add Task to "${columnName}"`;
+                addTaskModal.classList.remove('hidden');
+            }
+
+            if (closeTaskModal) {
+                closeTaskModal.addEventListener('click', function () {
+                    addTaskModal.classList.add('hidden');
+                    document.getElementById('createTaskForm').reset();
+                });
+            }
+            if (cancelTaskBtn) {
+                cancelTaskBtn.addEventListener('click', function () {
+                    addTaskModal.classList.add('hidden');
+                    document.getElementById('createTaskForm').reset();
+                });
+            }
+
+            if (createTaskForm) {
+                createTaskForm.addEventListener('submit', function (e) {
+                    e.preventDefault();
+                    const columnId = document.getElementById('taskColumnId').value;
+                    const title = document.getElementById('taskTitle').value.trim();
+                    const description = document.getElementById('taskDescription').value.trim();
+                    const priority = document.getElementById('taskPriority').value;
+                    const dueDate = document.getElementById('taskDueDate').value || null;
+                    const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+
+                    if (!title) {
+                        alert('Please enter a task title');
+                        return;
+                    }
+
+                    fetch('/Board/AddTask', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'RequestVerificationToken': token
+                        },
+                        body: JSON.stringify({
+                            ColumnId: parseInt(columnId),
+                            Title: title,
+                            Description: description,
+                            Priority: priority,
+                            DueDate: dueDate
+                        })
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                const column = document.querySelector(`.drag-drop-container[data-column-id="${columnId}"]`);
+                                addTaskToUI(column, data.taskId, title, description, priority, dueDate);
+                                addTaskModal.classList.add('hidden');
+                                createTaskForm.reset();
+                                window.boardToast('Task added successfully!', 'success');
+                            } else {
+                                alert('Failed to add task: ' + data.message);
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            alert('Failed to add task. Please try again.');
+                        });
+                });
+            }
+
+            function addTaskToUI(column, taskId, title, description, priority, dueDate) {
+                const priorityClass = getPriorityClass(priority);
+                const dueDateText = dueDate ? new Date(dueDate).toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric'
+                }) : null;
+                const isOverdue = dueDate ? new Date(dueDate) < new Date() : false;
+                const dateClass = isOverdue ? 'text-red-400' : 'text-gray-400';
+                const newTaskCard = document.createElement('div');
+                newTaskCard.className = 'task-card bg-gray-800 rounded-xl p-4 cursor-move hover:bg-gray-750 border border-gray-700 hover:border-gray-600 transition-all';
+                newTaskCard.setAttribute('draggable', 'true');
+                newTaskCard.dataset.taskId = taskId;
+                newTaskCard.dataset.taskTitle = title;
+                newTaskCard.dataset.taskPriority = priority;
+                newTaskCard.innerHTML = `
+                    <div class="flex justify-between items-start mb-3 gap-2">
+                        <h4 class="font-medium text-white text-sm flex-1 task-title">${title}</h4>
+                        <span class="px-2 py-0.5 rounded text-[10px] font-medium border ${priorityClass} shrink-0 priority-badge">${priority}</span>
+                    </div>
+                    ${description ? `<p class="text-gray-400 text-xs mb-4 line-clamp-2 task-description">${description}</p>` : ''}
+                    <div class="flex items-center justify-between text-xs mb-3">
+                        ${dueDateText ? `<span class="flex items-center ${dateClass} due-date"><i class="fas fa-calendar-alt mr-1.5"></i>${dueDateText}</span>` : `<span class="text-gray-500 italic">No date</span>`}
+                        <div class="flex items-center -space-x-2 assignees">
+                            <div class="w-7 h-7 rounded-full bg-gray-700 border-2 border-gray-900 flex items-center justify-center text-xs text-gray-500">
+                                <i class="fas fa-user"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="pt-2 border-t border-gray-700 flex items-center gap-4 text-xs text-gray-500">
+                        <button class="flex items-center hover:text-gray-300 comment-btn" onclick="showTaskDetails(${taskId})">
+                            <i class="fas fa-comment mr-1.5"></i><span>0</span>
+                        </button>
+                        <button class="flex items-center hover:text-gray-300 attachment-btn">
+                            <i class="fas fa-paperclip mr-1.5"></i><span>0</span>
+                        </button>
+                    </div>
+                `;
+                newTaskCard.addEventListener('dragstart', function (e) {
+                    this.classList.add('dragging');
+                    e.dataTransfer.setData('text/plain', this.dataset.taskId);
+                });
+                newTaskCard.addEventListener('dragend', function () {
+                    this.classList.remove('dragging');
+                });
+                column.insertBefore(newTaskCard, column.querySelector('.add-task-btn'));
+                updateColumnTaskCounts();
+            }
+
+            function getPriorityClass(priority) {
+                switch (priority) {
+                    case 'Urgent':
+                        return 'bg-purple-900/30 text-purple-400 border-purple-700/30';
+                    case 'High':
+                        return 'bg-red-900/30 text-red-400 border-red-700/30';
+                    case 'Medium':
+                        return 'bg-yellow-900/30 text-yellow-400 border-yellow-700/30';
+                    case 'Low':
+                        return 'bg-green-900/30 text-green-400 border-green-700/30';
+                    default:
+                        return 'bg-gray-700 text-gray-400 border-gray-600';
+                }
+            }
+
+            function initDragDropForColumn(container) {
+                container.addEventListener('dragover', function (e) {
+                    e.preventDefault();
+                    if (document.querySelector('.dragging')) container.classList.add('drag-over');
+                });
+                container.addEventListener('dragleave', function () {
+                    container.classList.remove('drag-over');
+                });
+                container.addEventListener('drop', function (e) {
+                    e.preventDefault();
+                    container.classList.remove('drag-over');
+                    const taskId = e.dataTransfer.getData('text/plain');
+                    const taskCard = document.querySelector(`[data-task-id="${taskId}"]`);
+                    if (taskCard && container !== taskCard.parentElement) {
+                        const columnId = container.dataset.columnId;
+                        const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+                        fetch('/Board/MoveTask', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'RequestVerificationToken': token
+                            },
+                            body: JSON.stringify({
+                                TaskId: parseInt(taskId),
+                                ColumnId: parseInt(columnId)
+                            })
+                        })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    const addTaskBtn = container.querySelector('.add-task-btn');
+                                    if (addTaskBtn) container.insertBefore(taskCard, addTaskBtn);
+                                    else container.appendChild(taskCard);
+                                    updateColumnTaskCounts();
+                                    window.boardToast('Task moved successfully', 'success');
+                                } else {
+                                    window.boardToast('Failed to move task: ' + data.message, 'error');
+                                }
+                            })
+                            .catch(error => window.boardToast('Network error', 'error'));
+                    }
+                });
+            }
+
+            document.querySelectorAll('.drag-drop-container').forEach(container => {
+                initDragDropForColumn(container);
+            });
+
+            document.querySelectorAll('.task-card').forEach(card => {
+                card.setAttribute('draggable', 'true');
+                card.addEventListener('dragstart', function (e) {
+                    this.classList.add('dragging');
+                    e.dataTransfer.setData('text/plain', this.dataset.taskId);
+                });
+                card.addEventListener('dragend', function () {
+                    this.classList.remove('dragging');
+                });
+            });
+
+            function updateColumnTaskCounts() {
+                document.querySelectorAll('.column').forEach(column => {
+                    const container = column.querySelector('.drag-drop-container');
+                    const taskCount = container.querySelectorAll('.task-card').length;
+                    const taskCountElement = column.querySelector('.task-count');
+                    if (taskCountElement) taskCountElement.textContent = taskCount;
+                });
+            }
+
+            document.querySelectorAll('.add-task-btn').forEach(button => {
+                button.addEventListener('click', function () {
+                    showAddTaskModal(this);
+                });
+            });
+
+            const searchInput = document.getElementById('searchTasks');
+            if (searchInput) {
+                searchInput.addEventListener('input', function () {
+                    const searchTerm = this.value.toLowerCase().trim();
+                    document.querySelectorAll('.task-card').forEach(card => {
+                        const title = card.dataset.taskTitle?.toLowerCase() || '';
+                        const description = card.querySelector('.task-description')?.textContent?.toLowerCase() || '';
+                        if (searchTerm === '' || title.includes(searchTerm) || description.includes(searchTerm)) {
+                            card.style.display = 'block';
+                        } else {
+                            card.style.display = 'none';
+                        }
+                    });
+                });
+            }
+
+            const membersBtn = document.querySelector('a[title="Members"]');
+            const membersSidebar = document.getElementById('membersSidebar');
+            const closeMembersBtn = document.getElementById('closeMembersBtn');
+
+            if (membersBtn && membersSidebar) {
+                membersBtn.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    membersSidebar.classList.remove('translate-x-full');
+                });
+            }
+            if (closeMembersBtn) {
+                closeMembersBtn.addEventListener('click', function () {
+                    membersSidebar.classList.add('translate-x-full');
+                });
+            }
+            document.addEventListener('click', function (e) {
+                if (membersSidebar && !membersSidebar.contains(e.target) &&
+                    !e.target.closest('a[title="Members"]') &&
+                    !membersSidebar.classList.contains('translate-x-full')) {
+                    membersSidebar.classList.add('translate-x-full');
+                }
+            });
+
+            if (isOwner) {
+                document.querySelectorAll('.member-menu-btn').forEach(btn => {
+                    btn.addEventListener('click', function (e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+
+                        const container = this.closest('.member-menu-container');
+                        if (!container) return;
+
+                        const dropdown = container.querySelector('.member-dropdown');
+                        if (!dropdown) return;
+
+                        document.querySelectorAll('.member-dropdown').forEach(d => {
+                            if (d !== dropdown) d.classList.add('hidden');
+                        });
+
+                        dropdown.classList.toggle('hidden');
+                    });
+                });
+
+                document.querySelectorAll('.kick-btn').forEach(btn => {
+                    btn.addEventListener('click', function (e) {
+                        e.preventDefault();
+
+                        const userId = this.dataset.userId;
+                        const memberItem = this.closest('.member-item');
+                        const userName = memberItem?.querySelector('.text-white')?.textContent || 'User';
+
+                        if (!userId) {
+                            window.boardToast('User ID not found!', 'error');
+                            return;
+                        }
+
+                        if (confirm(`Kick ${userName}? They can rejoin later.`)) {
+                            const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+                            fetch('/Board/KickMember', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'RequestVerificationToken': token
+                                },
+                                body: JSON.stringify({
+                                    boardId: boardId,
+                                    userId: userId
+                                })
+                            })
+                                .then(response => response.json())
+                                .then(data => {
+                                    if (data.success) {
+                                        memberItem.remove();
+                                        updateMemberCount();
+                                        window.boardToast('Member kicked successfully', 'success');
+                                    } else {
+                                        window.boardToast('Failed to kick member: ' + data.message, 'error');
+                                    }
+                                })
+                                .catch(error => {
+                                    window.boardToast('Error kicking member', 'error');
+                                });
+                        }
+                    });
+                });
+
+                document.querySelectorAll('.ban-btn').forEach(btn => {
+                    btn.addEventListener('click', function (e) {
+                        e.preventDefault();
+
+                        const userId = this.dataset.userId;
+                        const memberItem = this.closest('.member-item');
+                        const userName = memberItem?.querySelector('.text-white')?.textContent || 'User';
+
+                        if (!userId) {
+                            window.boardToast('User ID not found!', 'error');
+                            return;
+                        }
+
+                        if (confirm(`Permanently ban ${userName}? They cannot rejoin.`)) {
+                            const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+                            fetch('/Board/BanMember', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'RequestVerificationToken': token
+                                },
+                                body: JSON.stringify({
+                                    boardId: boardId,
+                                    userId: userId
+                                })
+                            })
+                                .then(response => response.json())
+                                .then(data => {
+                                    if (data.success) {
+                                        memberItem.remove();
+                                        updateMemberCount();
+                                        window.boardToast('User banned permanently', 'warning');
+                                    } else {
+                                        window.boardToast('Failed to ban member: ' + data.message, 'error');
+                                    }
+                                })
+                                .catch(error => {
+                                    window.boardToast('Error banning member', 'error');
+                                });
+                        }
+                    });
+                });
+            }
+            window.pinTask = function(taskId) {
+    const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+    const formData = new FormData();
+    formData.append('taskId', taskId);
+    
+    fetch('/Board/PinTask', {
+        method: 'POST',
+        headers: {
+            'RequestVerificationToken': token
+        },
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const taskCard = document.querySelector(`.task-card[data-task-id="${taskId}"]`);
+            const container = taskCard.parentElement;
+            const firstTask = container.querySelector('.task-card');
+            
+            if (firstTask !== taskCard) {
+                container.insertBefore(taskCard, firstTask);
+                window.boardToast('Task pinned to top!', 'success');
+            } else {
+                window.boardToast('Task already at top', 'info');
+            }
+        } else {
+            window.boardToast('Failed to pin task: ' + data.message, 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        window.boardToast('Network error', 'error');
+    });
+};
+            function updateMemberCount() {
+                const memberCount = document.querySelectorAll('.member-item').length;
+                document.querySelectorAll('.fa-users').forEach(el => {
+                    const countSpan = el.parentElement.querySelector('span:not(.ml-2)');
+                    if (countSpan && countSpan.textContent.includes('members')) {
+                        countSpan.textContent = `${memberCount} members`;
+                    }
+                });
+                const sidebarCount = document.querySelector('#membersSidebar .ml-2.px-2.py-0\\.5');
+                if (sidebarCount) sidebarCount.textContent = memberCount;
+            }
+
+            document.addEventListener('click', function (e) {
+                if (!e.target.closest('.member-menu-container')) {
+                    document.querySelectorAll('.member-dropdown').forEach(d => {
+                        d.classList.add('hidden');
+                    });
+                }
+            });
+
+            const inviteMemberBtn = document.getElementById('inviteMemberBtn');
+            const inviteMemberModal = document.getElementById('inviteMemberModal');
+            const closeInviteModal = document.getElementById('closeInviteModal');
+            const cancelInviteBtn = document.getElementById('cancelInviteBtn');
+            const inviteMemberForm = document.getElementById('inviteMemberForm');
+
+            if (inviteMemberBtn) {
+                inviteMemberBtn.addEventListener('click', function () {
+                    inviteMemberModal.classList.remove('hidden');
+                });
+            }
+
+            function closeInviteModalFunc() {
+                inviteMemberModal.classList.add('hidden');
+                document.getElementById('inviteEmail').value = '';
+            }
+
+            if (closeInviteModal) closeInviteModal.addEventListener('click', closeInviteModalFunc);
+            if (cancelInviteBtn) cancelInviteBtn.addEventListener('click', closeInviteModalFunc);
+
+            if (inviteMemberForm) {
+                inviteMemberForm.addEventListener('submit', function (e) {
+                    e.preventDefault();
+                    const email = document.getElementById('inviteEmail').value.trim();
+                    const role = document.getElementById('inviteRole').value;
+                    const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+
+                    if (!email) {
+                        alert('Please enter an email address');
+                        return;
+                    }
+
+                    fetch('/Board/InviteMember', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'RequestVerificationToken': token
+                        },
+                        body: JSON.stringify({
+                            boardId: boardId,
+                            email: email,
+                            role: role
+                        })
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                closeInviteModalFunc();
+                                window.boardToast('Invitation sent successfully!', 'success');
+                            } else {
+                                alert('Failed to send invitation: ' + data.message);
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            alert('Failed to send invitation. Please try again.');
+                        });
+                });
+            }
+
+            const connection = new signalR.HubConnectionBuilder()
+                .withUrl("/chathub")
+                .withAutomaticReconnect()
+                .build();
+
+            connection.start().then(() => {
+                connection.invoke('JoinBoard', boardId).catch(err => console.error(err));
+                loadChatHistory();
+                chatInitialized = true;
+            }).catch(err => console.error('Connection failed: ', err));
+
+            connection.on('ReceiveMessage', (message) => {
+                displayMessage(message);
+            });
+
+            function displayMessage(message) {
+                if (document.querySelector(`[data-message-id="${message.id}"]`)) return;
+
+                const isCurrentUser = message.userId === currentUserId;
+                const messageElement = document.createElement('div');
+                messageElement.className = `flex ${isCurrentUser ? 'justify-end' : 'justify-start'} chat-message`;
+                messageElement.dataset.messageId = message.id;
+
+                let messageHtml = '';
+                if (message.content) {
+                    messageHtml += `<p class="text-sm text-white">${message.content}</p>`;
+                }
+
+                const attachments = message.attachments || [];
+                if (attachments.length > 0) {
+                    attachments.forEach(att => {
+                        const iconClass = att.iconClass || 'fa-file';
+                        const colorClass = att.colorClass || 'text-gray-400';
+                        const fileSizeText = att.fileSizeText || (att.fileSize ? (att.fileSize / 1024).toFixed(1) + ' KB' : '');
+
+                        messageHtml += `
+                <div class="mt-2 flex items-center space-x-2 bg-gray-700/50 rounded-lg p-2">
+                    <i class="fas ${iconClass} ${colorClass}"></i>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-xs text-white truncate">${att.fileName}</p>
+                        <p class="text-xs text-gray-400">${fileSizeText}</p>
+                    </div>
+                    <a href="/Board/DownloadAttachment/${att.id}" 
+                       class="text-blue-400 hover:text-blue-300"
+                       target="_blank">
+                        <i class="fas fa-download"></i>
+                    </a>
+                </div>
+            `;
+                    });
+                }
+
+                messageElement.innerHTML = `
+        <div class="max-w-[80%] ${isCurrentUser ? 'bg-blue-600' : 'bg-gray-800'} rounded-2xl px-4 py-2">
+            ${!isCurrentUser ? `<p class="text-xs text-blue-400 mb-1">${message.userName}</p>` : ''}
+            ${messageHtml}
+            <p class="text-xs text-gray-400 mt-1">${new Date(message.createdAt).toLocaleTimeString()}</p>
+        </div>
+    `;
+
+                chatMessages.appendChild(messageElement);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+           window.deleteTask = function(taskId) {
+    if (confirm('Are you sure you want to delete this task?')) {
+        const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+        const formData = new FormData();
+        formData.append('taskId', taskId);
+        
+        fetch('/Board/DeleteTask', {
+            method: 'POST',
+            headers: {
+                'RequestVerificationToken': token
+            },
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const taskCard = document.querySelector(`.task-card[data-task-id="${taskId}"]`);
+                if (taskCard) {
+                    taskCard.remove();
+                    window.boardToast('Task deleted!', 'success');
+                    if (typeof updateColumnTaskCounts === 'function') {
+                        updateColumnTaskCounts();
+                    }
+                }
+            } else {
+                window.boardToast('Failed: ' + data.message, 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            window.boardToast('Network error', 'error');
+        });
+    }
+};
+            function loadChatHistory() {
+                fetch(`/Board/GetChatMessages?boardId=${boardId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success && data.messages && data.messages.length > 0) {
+                            chatMessages.innerHTML = '';
+                            data.messages.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
+                                .forEach(msg => {
+                                    displayMessage(msg);
+                                });
+                        } else {
+                            chatMessages.innerHTML = `
+                    <div class="text-center text-gray-500 text-sm py-8">
+                        <i class="fas fa-comments text-3xl mb-2 opacity-50"></i>
+                        <p>No messages yet</p>
+                        <p class="text-xs mt-1">Start the conversation!</p>
+                    </div>
+                `;
+                        }
+                    })
+                    .catch(err => console.error('Error loading history:', err));
+            }
+
+            if (chatForm) {
+                chatForm.addEventListener('submit', function (e) {
+                    e.preventDefault();
+
+                    const content = chatMessageInput.value.trim();
+                    const hasFiles = selectedFiles.length > 0;
+
+                    if (!content && !hasFiles) {
+                        window.boardToast('Please enter a message or select a file', 'error');
+                        return;
+                    }
+
+                    const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+                    const formData = new FormData();
+
+                    formData.append('boardId', boardId);
+                    if (content) formData.append('content', content);
+
+                    selectedFiles.forEach(file => {
+                        formData.append('attachments', file);
+                    });
+
+                    const placeholder = chatMessages.querySelector('.text-center.text-gray-500');
+                    if (placeholder) placeholder.remove();
+
+                    if (content) {
+                        const tempId = 'temp-' + Date.now();
+                        displayMessage({
+                            id: tempId,
+                            userId: currentUserId,
+                            userName: '@User.Identity?.Name',
+                            content: content,
+                            attachments: [],
+                            createdAt: new Date().toISOString()
+                        });
+                    }
+
+                    fetch('/Board/SendChatMessage', {
+                        method: 'POST',
+                        headers: {'RequestVerificationToken': token},
+                        body: formData
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                chatMessageInput.value = '';
+                                selectedFiles = [];
+                                if (fileInput) fileInput.value = '';
+                                if (filePreviewContainer) filePreviewContainer.classList.add('hidden');
+
+                                if (!content && data.message) {
+                                    displayMessage(data.message);
+                                }
+                            } else {
+                                window.boardToast('Failed to send: ' + data.message, 'error');
+                            }
+                        })
+                        .catch(err => {
+                            console.error('Error:', err);
+                            window.boardToast('Failed to send message', 'error');
+                        });
+                });
+            }
+
+            const shareBoardBtn = document.getElementById('shareBoardBtn');
+            if (shareBoardBtn) {
+                shareBoardBtn.addEventListener('click', function () {
+                    navigator.clipboard.writeText('@Model.JoinCode');
+                    window.boardToast('Join code copied to clipboard!', 'success');
+                });
+            }
+
+            window.showTaskDetails = function (taskId) {
+                const modal = document.getElementById('taskDetailsModal');
+                const content = document.getElementById('taskDetailsContent');
+                fetch(`/Board/GetTaskDetails?taskId=${taskId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            content.innerHTML = data.html;
+                            modal.classList.remove('hidden');
+                        }
+                    });
+            };
+
+            const closeTaskDetailsModal = document.getElementById('closeTaskDetailsModal');
+            if (closeTaskDetailsModal) {
+                closeTaskDetailsModal.addEventListener('click', function () {
+                    document.getElementById('taskDetailsModal').classList.add('hidden');
+                });
+            }
+
+            window.boardToast = function (message, type = 'info') {
+                const toast = document.createElement('div');
+                const bgColor = type === 'success' ? 'bg-green-900' :
+                    type === 'error' ? 'bg-red-900' :
+                        type === 'warning' ? 'bg-yellow-900' : 'bg-blue-900';
+                toast.className = `fixed top-4 right-4 ${bgColor} border border-gray-700 text-white px-6 py-3 rounded-xl shadow-lg z-[100] transform transition-transform duration-300 translate-x-full`;
+                toast.innerHTML = `<div class="flex items-center"><i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : type === 'warning' ? 'exclamation-triangle' : 'info-circle'} mr-3"></i><span>${message}</span></div>`;
+                document.body.appendChild(toast);
+                setTimeout(() => toast.classList.remove('translate-x-full'), 10);
+                setTimeout(() => {
+                    toast.classList.add('translate-x-full');
+                    setTimeout(() => toast.remove(), 300);
+                }, 5000);
+                toast.addEventListener('click', () => toast.remove());
+            };
+        });
+    </script>
+}

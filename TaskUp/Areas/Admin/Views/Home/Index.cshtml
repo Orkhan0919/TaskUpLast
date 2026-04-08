@@ -1,0 +1,144 @@
+@model TaskUp.ViewModels.Admin.AdminDashboardVM
+@{
+    ViewData["Title"] = "Admin Dashboard";
+    Layout = "_AdminLayout";
+}
+
+<div class="container-fluid py-4">
+    <h1 class="text-2xl font-bold text-white mb-6">Admin Dashboard</h1>
+
+    <!-- İstatistik Kartları -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <!-- Total Users -->
+        <div class="bg-gray-900 rounded-2xl p-6 border border-gray-800">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-400 text-sm">Total Users</p>
+                    <p class="text-3xl font-bold text-white mt-2">@Model.TotalUsers</p>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-blue-900/30 flex items-center justify-center">
+                    <i class="fas fa-users text-blue-400 text-xl"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total Boards -->
+        <div class="bg-gray-900 rounded-2xl p-6 border border-gray-800">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-400 text-sm">Total Boards</p>
+                    <p class="text-3xl font-bold text-white mt-2">@Model.TotalBoards</p>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-green-900/30 flex items-center justify-center">
+                    <i class="fas fa-columns text-green-400 text-xl"></i>
+                </div>
+            </div>
+            <div class="flex mt-3 text-xs">
+                <span class="text-blue-400 mr-3">📊 @Model.TotalPersonalBoards Personal</span>
+                <span class="text-purple-400">👥 @Model.TotalTeamBoards Team</span>
+            </div>
+        </div>
+
+        <!-- Total Tasks -->
+        <div class="bg-gray-900 rounded-2xl p-6 border border-gray-800">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-400 text-sm">Total Tasks</p>
+                    <p class="text-3xl font-bold text-white mt-2">@Model.TotalTasks</p>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-yellow-900/30 flex items-center justify-center">
+                    <i class="fas fa-tasks text-yellow-400 text-xl"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ortalama -->
+        <div class="bg-gray-900 rounded-2xl p-6 border border-gray-800">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-400 text-sm">Avg Tasks/Board</p>
+                    <p class="text-3xl font-bold text-white mt-2">
+                        @(Model.TotalBoards > 0 ? (Model.TotalTasks / Model.TotalBoards).ToString("F1") : "0")
+                    </p>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-purple-900/30 flex items-center justify-center">
+                    <i class="fas fa-chart-line text-purple-400 text-xl"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <!-- Son Kullanıcılar -->
+        <div class="bg-gray-900 rounded-2xl p-6 border border-gray-800">
+            <h2 class="text-lg font-semibold text-white mb-4 flex items-center">
+                <i class="fas fa-user-plus text-blue-400 mr-2"></i>
+                Recent Users
+            </h2>
+            <div class="space-y-3">
+                @foreach (var user in Model.RecentUsers)
+                {
+                    <div class="flex items-center justify-between p-3 bg-gray-800/50 rounded-xl">
+                        <div class="flex items-center">
+                            <div class="w-8 h-8 rounded-full bg-blue-900/30 flex items-center justify-center mr-3">
+                                <span class="text-sm font-bold text-blue-400">
+                                    @(user.DisplayName?.Substring(0,1).ToUpper() ?? "?")
+                                </span>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-white">@user.DisplayName</p>
+                                <p class="text-xs text-gray-400">@user.Email</p>
+                            </div>
+                        </div>
+                        <span class="text-xs text-gray-500">@user.CreatedAt.ToString("MMM dd")</span>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Son Board'lar -->
+        <div class="bg-gray-900 rounded-2xl p-6 border border-gray-800">
+            <h2 class="text-lg font-semibold text-white mb-4 flex items-center">
+                <i class="fas fa-columns text-purple-400 mr-2"></i>
+                Recent Boards
+            </h2>
+            <div class="space-y-3">
+                @foreach (var board in Model.RecentBoards)
+                {
+                    <div class="flex items-center justify-between p-3 bg-gray-800/50 rounded-xl">
+                        <div class="flex items-center">
+                            <div class="w-8 h-8 rounded-full @(board.BoardType.ToString() == "Personal" ? "bg-blue-900/30" : "bg-purple-900/30") flex items-center justify-center mr-3">
+                                <i class="fas @(board.BoardType.ToString() == "Personal" ? "fa-user text-blue-400" : "fa-users text-purple-400") text-sm"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-white">@board.Name</p>
+                                <p class="text-xs text-gray-400">by @(board.Owner?.DisplayName ?? board.Owner?.Email)</p>
+                            </div>
+                        </div>
+                        <span class="text-xs text-gray-500">@board.CreatedAt.ToString("MMM dd")</span>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart (basit bar chart) -->
+    <div class="bg-gray-900 rounded-2xl p-6 border border-gray-800">
+        <h2 class="text-lg font-semibold text-white mb-4 flex items-center">
+            <i class="fas fa-chart-bar text-green-400 mr-2"></i>
+            User Growth (Last 7 Days)
+        </h2>
+        <div class="flex items-end justify-around h-40 mt-6">
+            @for (int i = 0; i < Model.Last7Days.Count; i++)
+            {
+                <div class="flex flex-col items-center w-12">
+                    <div class="w-8 bg-blue-500 rounded-t-lg" 
+                         style="height: @(Model.UserGrowth[i] * 20 + 20)px; min-height: 20px;">
+                    </div>
+                    <span class="text-xs text-gray-400 mt-2">@Model.Last7Days[i]</span>
+                    <span class="text-xs text-white font-bold">@Model.UserGrowth[i]</span>
+                </div>
+            }
+        </div>
+    </div>
+</div>

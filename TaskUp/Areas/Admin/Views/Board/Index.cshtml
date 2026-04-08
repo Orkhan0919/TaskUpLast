@@ -1,0 +1,118 @@
+@model List<TaskUp.ViewModels.Admin.BoardAdminVM>
+@{
+    ViewData["Title"] = "Board Management";
+    Layout = "_AdminLayout";
+}
+
+@Html.AntiForgeryToken()
+
+<div class="container-fluid py-4">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold text-white">Board Management</h1>
+        <div class="bg-gray-900 px-4 py-2 rounded-xl border border-gray-800">
+            <span class="text-gray-400">Total Boards:</span>
+            <span class="text-white font-bold ml-2">@Model.Count</span>
+        </div>
+    </div>
+
+    <div class="bg-gray-900 rounded-2xl p-6 border border-gray-800">
+        <table class="w-full">
+            <thead>
+            <tr class="text-left text-gray-400 border-b border-gray-800">
+                <th class="pb-3">Board Name</th>
+                <th class="pb-3">Type</th>
+                <th class="pb-3">Owner</th>
+                <th class="pb-3">Members</th>
+                <th class="pb-3">Tasks</th>
+                <th class="pb-3">Join Code</th>
+                <th class="pb-3">Created</th>
+                <th class="pb-3">Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach (var board in Model)
+            {
+                <tr class="border-b border-gray-800">
+                    <td class="py-3">
+                        <div class="text-white font-medium">@board.Name</div>
+                        @if (!string.IsNullOrEmpty(board.Description))
+                        {
+                            <div class="text-xs text-gray-500">@board.Description</div>
+                        }
+                    </td>
+                    <td class="py-3">
+                            <span
+                                class="px-2 py-1 @(board.BoardType == "Personal" ? "bg-blue-900/30 text-blue-400" : "bg-purple-900/30 text-purple-400") rounded-full text-xs">
+                                @board.BoardType
+                            </span>
+                    </td>
+                    <td class="py-3 text-white">@board.OwnerEmail</td>
+                    <td class="py-3 text-white">@board.MemberCount</td>
+                    <td class="py-3 text-white">@board.TaskCount</td>
+                    <td class="py-3">
+                        <code class="bg-gray-800 px-2 py-1 rounded text-xs text-blue-400">@board.JoinCode</code>
+                    </td>
+                    <td class="py-3 text-gray-400">@board.CreatedAt.ToString("MMM dd, yyyy")</td>
+                    <td class="py-3">
+                        <button onclick="deleteBoard(@board.Id)"
+                                class="px-3 py-1 bg-red-600 hover:bg-red-700 rounded-lg text-white text-sm">
+                            Delete
+                        </button>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+
+        @if (!Model.Any())
+        {
+            <div class="text-center py-8 text-gray-400">
+                No boards found in database.
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function deleteBoard(boardId) {
+            console.log('Deleting board with ID:', boardId);
+
+            if (!boardId) {
+                alert('Invalid board ID');
+                return;
+            }
+
+            if (confirm('Are you sure you want to delete this board? This action cannot be undone!')) {
+                const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+
+                if (!token) {
+                    alert('Security token not found!');
+                    return;
+                }
+
+                fetch('/Admin/Board/DeleteBoard', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': token
+                    },
+                    body: JSON.stringify({ boardId: boardId })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log('Response:', data);
+                        if (data.success) {
+                            location.reload();
+                        } else {
+                            alert('Failed: ' + (data.message || 'Unknown error'));
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Network error occurred');
+                    });
+            }
+}
+    </script>
+}

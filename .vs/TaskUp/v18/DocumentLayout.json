@@ -1,0 +1,237 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\mirze\\OneDrive\\Desktop\\Programming\\dotnet projects\\TaskUpPr\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{6C272B1C-A0B4-441F-85E5-FC8D48778E2D}|TaskUp\\TaskUp.csproj|c:\\users\\mirze\\onedrive\\desktop\\programming\\dotnet projects\\taskuppr\\taskup\\views\\board\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{6C272B1C-A0B4-441F-85E5-FC8D48778E2D}|TaskUp\\TaskUp.csproj|solutionrelative:taskup\\views\\board\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6C272B1C-A0B4-441F-85E5-FC8D48778E2D}|TaskUp\\TaskUp.csproj|c:\\users\\mirze\\onedrive\\desktop\\programming\\dotnet projects\\taskuppr\\taskup\\controllers\\boardcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6C272B1C-A0B4-441F-85E5-FC8D48778E2D}|TaskUp\\TaskUp.csproj|solutionrelative:taskup\\controllers\\boardcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6C272B1C-A0B4-441F-85E5-FC8D48778E2D}|TaskUp\\TaskUp.csproj|c:\\users\\mirze\\onedrive\\desktop\\programming\\dotnet projects\\taskuppr\\taskup\\views\\dashboard\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{6C272B1C-A0B4-441F-85E5-FC8D48778E2D}|TaskUp\\TaskUp.csproj|solutionrelative:taskup\\views\\dashboard\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6C272B1C-A0B4-441F-85E5-FC8D48778E2D}|TaskUp\\TaskUp.csproj|c:\\users\\mirze\\onedrive\\desktop\\programming\\dotnet projects\\taskuppr\\taskup\\views\\shared\\_boardlayout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{6C272B1C-A0B4-441F-85E5-FC8D48778E2D}|TaskUp\\TaskUp.csproj|solutionrelative:taskup\\views\\shared\\_boardlayout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6C272B1C-A0B4-441F-85E5-FC8D48778E2D}|TaskUp\\TaskUp.csproj|c:\\users\\mirze\\onedrive\\desktop\\programming\\dotnet projects\\taskuppr\\taskup\\views\\shared\\_themeswitcher.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{6C272B1C-A0B4-441F-85E5-FC8D48778E2D}|TaskUp\\TaskUp.csproj|solutionrelative:taskup\\views\\shared\\_themeswitcher.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6C272B1C-A0B4-441F-85E5-FC8D48778E2D}|TaskUp\\TaskUp.csproj|c:\\users\\mirze\\onedrive\\desktop\\programming\\dotnet projects\\taskuppr\\taskup\\views\\shared\\_layout2.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{6C272B1C-A0B4-441F-85E5-FC8D48778E2D}|TaskUp\\TaskUp.csproj|solutionrelative:taskup\\views\\shared\\_layout2.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6C272B1C-A0B4-441F-85E5-FC8D48778E2D}|TaskUp\\TaskUp.csproj|c:\\users\\mirze\\onedrive\\desktop\\programming\\dotnet projects\\taskuppr\\taskup\\views\\shared\\_layout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{6C272B1C-A0B4-441F-85E5-FC8D48778E2D}|TaskUp\\TaskUp.csproj|solutionrelative:taskup\\views\\shared\\_layout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6C272B1C-A0B4-441F-85E5-FC8D48778E2D}|TaskUp\\TaskUp.csproj|c:\\users\\mirze\\onedrive\\desktop\\programming\\dotnet projects\\taskuppr\\taskup\\controllers\\homecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6C272B1C-A0B4-441F-85E5-FC8D48778E2D}|TaskUp\\TaskUp.csproj|solutionrelative:taskup\\controllers\\homecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6C272B1C-A0B4-441F-85E5-FC8D48778E2D}|TaskUp\\TaskUp.csproj|c:\\users\\mirze\\onedrive\\desktop\\programming\\dotnet projects\\taskuppr\\taskup\\wwwroot\\js\\theme.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
+      "RelativeMoniker": "D:0:0:{6C272B1C-A0B4-441F-85E5-FC8D48778E2D}|TaskUp\\TaskUp.csproj|solutionrelative:taskup\\wwwroot\\js\\theme.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6C272B1C-A0B4-441F-85E5-FC8D48778E2D}|TaskUp\\TaskUp.csproj|c:\\users\\mirze\\onedrive\\desktop\\programming\\dotnet projects\\taskuppr\\taskup\\wwwroot\\css\\theme.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}",
+      "RelativeMoniker": "D:0:0:{6C272B1C-A0B4-441F-85E5-FC8D48778E2D}|TaskUp\\TaskUp.csproj|solutionrelative:taskup\\wwwroot\\css\\theme.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6C272B1C-A0B4-441F-85E5-FC8D48778E2D}|TaskUp\\TaskUp.csproj|c:\\users\\mirze\\onedrive\\desktop\\programming\\dotnet projects\\taskuppr\\taskup\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6C272B1C-A0B4-441F-85E5-FC8D48778E2D}|TaskUp\\TaskUp.csproj|solutionrelative:taskup\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6C272B1C-A0B4-441F-85E5-FC8D48778E2D}|TaskUp\\TaskUp.csproj|c:\\users\\mirze\\onedrive\\desktop\\programming\\dotnet projects\\taskuppr\\taskup\\services\\theme\\themeservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6C272B1C-A0B4-441F-85E5-FC8D48778E2D}|TaskUp\\TaskUp.csproj|solutionrelative:taskup\\services\\theme\\themeservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6C272B1C-A0B4-441F-85E5-FC8D48778E2D}|TaskUp\\TaskUp.csproj|c:\\users\\mirze\\onedrive\\desktop\\programming\\dotnet projects\\taskuppr\\taskup\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{6C272B1C-A0B4-441F-85E5-FC8D48778E2D}|TaskUp\\TaskUp.csproj|solutionrelative:taskup\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 2,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "BoardController.cs",
+              "DocumentMoniker": "C:\\Users\\mirze\\OneDrive\\Desktop\\Programming\\dotnet projects\\TaskUpPr\\TaskUp\\Controllers\\BoardController.cs",
+              "RelativeDocumentMoniker": "TaskUp\\Controllers\\BoardController.cs",
+              "ToolTip": "C:\\Users\\mirze\\OneDrive\\Desktop\\Programming\\dotnet projects\\TaskUpPr\\TaskUp\\Controllers\\BoardController.cs",
+              "RelativeToolTip": "TaskUp\\Controllers\\BoardController.cs",
+              "ViewState": "AgIAAEwBAAAAAAAAAAAuwGYBAAAJAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-08T16:14:51.185Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "_BoardLayout.cshtml",
+              "DocumentMoniker": "C:\\Users\\mirze\\OneDrive\\Desktop\\Programming\\dotnet projects\\TaskUpPr\\TaskUp\\Views\\Shared\\_BoardLayout.cshtml",
+              "RelativeDocumentMoniker": "TaskUp\\Views\\Shared\\_BoardLayout.cshtml",
+              "ToolTip": "C:\\Users\\mirze\\OneDrive\\Desktop\\Programming\\dotnet projects\\TaskUpPr\\TaskUp\\Views\\Shared\\_BoardLayout.cshtml",
+              "RelativeToolTip": "TaskUp\\Views\\Shared\\_BoardLayout.cshtml",
+              "ViewState": "AgIAAJcAAAAAAAAAAAAAAKoAAAAEAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-04-08T16:00:17.64Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Index.cshtml",
+              "DocumentMoniker": "C:\\Users\\mirze\\OneDrive\\Desktop\\Programming\\dotnet projects\\TaskUpPr\\TaskUp\\Views\\Board\\Index.cshtml",
+              "RelativeDocumentMoniker": "TaskUp\\Views\\Board\\Index.cshtml",
+              "ToolTip": "C:\\Users\\mirze\\OneDrive\\Desktop\\Programming\\dotnet projects\\TaskUpPr\\TaskUp\\Views\\Board\\Index.cshtml",
+              "RelativeToolTip": "TaskUp\\Views\\Board\\Index.cshtml",
+              "ViewState": "AgIAADMBAAAAAAAAAAAewDoBAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-04-08T16:00:03.759Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "theme.js",
+              "DocumentMoniker": "C:\\Users\\mirze\\OneDrive\\Desktop\\Programming\\dotnet projects\\TaskUpPr\\TaskUp\\wwwroot\\js\\theme.js",
+              "RelativeDocumentMoniker": "TaskUp\\wwwroot\\js\\theme.js",
+              "ToolTip": "C:\\Users\\mirze\\OneDrive\\Desktop\\Programming\\dotnet projects\\TaskUpPr\\TaskUp\\wwwroot\\js\\theme.js",
+              "RelativeToolTip": "TaskUp\\wwwroot\\js\\theme.js",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABQAAAADAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001646|",
+              "WhenOpened": "2026-04-08T15:16:35.286Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "Index.cshtml",
+              "DocumentMoniker": "C:\\Users\\mirze\\OneDrive\\Desktop\\Programming\\dotnet projects\\TaskUpPr\\TaskUp\\Views\\Dashboard\\Index.cshtml",
+              "RelativeDocumentMoniker": "TaskUp\\Views\\Dashboard\\Index.cshtml",
+              "ToolTip": "C:\\Users\\mirze\\OneDrive\\Desktop\\Programming\\dotnet projects\\TaskUpPr\\TaskUp\\Views\\Dashboard\\Index.cshtml",
+              "RelativeToolTip": "TaskUp\\Views\\Dashboard\\Index.cshtml",
+              "ViewState": "AgIAADYBAAAAAAAAAAAewEMBAAA3AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-04-08T15:13:57.39Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "_Layout2.cshtml",
+              "DocumentMoniker": "C:\\Users\\mirze\\OneDrive\\Desktop\\Programming\\dotnet projects\\TaskUpPr\\TaskUp\\Views\\Shared\\_Layout2.cshtml",
+              "RelativeDocumentMoniker": "TaskUp\\Views\\Shared\\_Layout2.cshtml",
+              "ToolTip": "C:\\Users\\mirze\\OneDrive\\Desktop\\Programming\\dotnet projects\\TaskUpPr\\TaskUp\\Views\\Shared\\_Layout2.cshtml",
+              "RelativeToolTip": "TaskUp\\Views\\Shared\\_Layout2.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAADAAAAAHAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-04-08T15:13:31.071Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "_Layout.cshtml",
+              "DocumentMoniker": "C:\\Users\\mirze\\OneDrive\\Desktop\\Programming\\dotnet projects\\TaskUpPr\\TaskUp\\Views\\Shared\\_Layout.cshtml",
+              "RelativeDocumentMoniker": "TaskUp\\Views\\Shared\\_Layout.cshtml",
+              "ToolTip": "C:\\Users\\mirze\\OneDrive\\Desktop\\Programming\\dotnet projects\\TaskUpPr\\TaskUp\\Views\\Shared\\_Layout.cshtml",
+              "RelativeToolTip": "TaskUp\\Views\\Shared\\_Layout.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-04-08T15:13:22.823Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "_ThemeSwitcher.cshtml",
+              "DocumentMoniker": "C:\\Users\\mirze\\OneDrive\\Desktop\\Programming\\dotnet projects\\TaskUpPr\\TaskUp\\Views\\Shared\\_ThemeSwitcher.cshtml",
+              "RelativeDocumentMoniker": "TaskUp\\Views\\Shared\\_ThemeSwitcher.cshtml",
+              "ToolTip": "C:\\Users\\mirze\\OneDrive\\Desktop\\Programming\\dotnet projects\\TaskUpPr\\TaskUp\\Views\\Shared\\_ThemeSwitcher.cshtml",
+              "RelativeToolTip": "TaskUp\\Views\\Shared\\_ThemeSwitcher.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAEAAAAVAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-04-08T15:12:52.234Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "HomeController.cs",
+              "DocumentMoniker": "C:\\Users\\mirze\\OneDrive\\Desktop\\Programming\\dotnet projects\\TaskUpPr\\TaskUp\\Controllers\\HomeController.cs",
+              "RelativeDocumentMoniker": "TaskUp\\Controllers\\HomeController.cs",
+              "ToolTip": "C:\\Users\\mirze\\OneDrive\\Desktop\\Programming\\dotnet projects\\TaskUpPr\\TaskUp\\Controllers\\HomeController.cs",
+              "RelativeToolTip": "TaskUp\\Controllers\\HomeController.cs",
+              "ViewState": "AgIAAA8AAAAAAAAAAAA5wCUAAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-08T15:11:50.558Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "theme.css",
+              "DocumentMoniker": "C:\\Users\\mirze\\OneDrive\\Desktop\\Programming\\dotnet projects\\TaskUpPr\\TaskUp\\wwwroot\\css\\theme.css",
+              "RelativeDocumentMoniker": "TaskUp\\wwwroot\\css\\theme.css",
+              "ToolTip": "C:\\Users\\mirze\\OneDrive\\Desktop\\Programming\\dotnet projects\\TaskUpPr\\TaskUp\\wwwroot\\css\\theme.css",
+              "RelativeToolTip": "TaskUp\\wwwroot\\css\\theme.css",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003000|",
+              "WhenOpened": "2026-04-08T15:15:30.42Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "ThemeService.cs",
+              "DocumentMoniker": "C:\\Users\\mirze\\OneDrive\\Desktop\\Programming\\dotnet projects\\TaskUpPr\\TaskUp\\Services\\Theme\\ThemeService.cs",
+              "RelativeDocumentMoniker": "TaskUp\\Services\\Theme\\ThemeService.cs",
+              "ToolTip": "C:\\Users\\mirze\\OneDrive\\Desktop\\Programming\\dotnet projects\\TaskUpPr\\TaskUp\\Services\\Theme\\ThemeService.cs",
+              "RelativeToolTip": "TaskUp\\Services\\Theme\\ThemeService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACIAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-08T15:11:10.933Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\mirze\\OneDrive\\Desktop\\Programming\\dotnet projects\\TaskUpPr\\TaskUp\\Program.cs",
+              "RelativeDocumentMoniker": "TaskUp\\Program.cs",
+              "ToolTip": "C:\\Users\\mirze\\OneDrive\\Desktop\\Programming\\dotnet projects\\TaskUpPr\\TaskUp\\Program.cs",
+              "RelativeToolTip": "TaskUp\\Program.cs",
+              "ViewState": "AgIAAAYAAAAAAAAAAAAAAB0AAAA6AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-08T14:54:52.085Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "appsettings.json",
+              "DocumentMoniker": "C:\\Users\\mirze\\OneDrive\\Desktop\\Programming\\dotnet projects\\TaskUpPr\\TaskUp\\appsettings.json",
+              "RelativeDocumentMoniker": "TaskUp\\appsettings.json",
+              "ToolTip": "C:\\Users\\mirze\\OneDrive\\Desktop\\Programming\\dotnet projects\\TaskUpPr\\TaskUp\\appsettings.json",
+              "RelativeToolTip": "TaskUp\\appsettings.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAAVAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2026-04-05T13:08:35.94Z"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
