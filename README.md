@@ -15,6 +15,10 @@ A modern Kanban-style project management system built with ASP.NET Core 8.0.
 - **Email Notifications**: Welcome, confirmation, password reset, invitations
 
 ---
+<img width="1365" height="767" alt="image" src="https://github.com/user-attachments/assets/0b2eda34-bee4-436e-8a57-1c74d2358d8e" />
+<img width="1365" height="767" alt="image" src="https://github.com/user-attachments/assets/9786a6f9-fc38-4ac4-9d27-042370ab168c" />
+<img width="1365" height="767" alt="image" src="https://github.com/user-attachments/assets/1d1d48b3-396b-48fa-b2be-7a41bfa8b5f4" />
+<img width="1358" height="678" alt="image" src="https://github.com/user-attachments/assets/c7bdf9a8-7848-4105-b5b6-2a14771b51c0" />
 
 ## 🛠️ Technologies
 
@@ -55,15 +59,19 @@ The project includes a ready-to-use database backup file (`TaskUp.bacpac`).
 SELECT name FROM sys.databases WHERE name = 'TaskUpDb';
 USE TaskUpDb;
 SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES;
-Default Admin Account
-Email	 Password	Role
-admin@taskup.com	admin123	Admin
-user@taskup.com   user1234  User
+### Default Admin Account
 
-⚙️ Configuration
-Update appsettings.json with your connection string:
+| Email | Password | Role |
+|-------|----------|------|
+| `admin@taskup.com` | `admin123` | Admin |
+| `user@taskup.com` | `user1234` | User |
 
-json
+
+
+### ⚙️ Configuration
+Update `appsettings.json` with your connection string:
+
+```json
 {
   "ConnectionStrings": {
     "Default": "Server=(localdb)\\MSSQLLocalDB;Database=TaskUpDb;Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=true;"
@@ -78,11 +86,16 @@ json
   },
   "AppUrl": "https://localhost:7237"
 }
-🚀 Running the Project
-bash
+```
+
+### 🚀 Running the Project
+
+```bash
 dotnet restore
 dotnet run
-Access the app at: https://localhost:7237
+```
+
+Access the app at: `https://localhost:7237`
 
 👨‍💻 Developer
 Orkhan Mirzeyev
