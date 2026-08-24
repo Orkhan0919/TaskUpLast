@@ -100,8 +100,8 @@ Access the app at: `https://localhost:7237`
 👨‍💻 Developer
 Orkhan Mirzeyev
 
-GitHub: @orkhan-mirzeyev
+GitHub: @Orkhan0919
 
-Email: mirzeyev05orxan@gmail.com
+Email: mirzeyev005orxan@gmail.com
 
 ⭐ Star this repository if you find it useful!
